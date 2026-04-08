@@ -1,0 +1,390 @@
+wandb:
+  entity: TestRedRl
+  project: Red_Exploration
+  group: ~
+
+env:
+  # --- 게임 시작 입력 (PyBoy .state) — train.resume_checkpoint(신경망 가중치)와 별개 ---
+  # state_dir: 프로젝트 루트 기준 상대 경로(실행 cwd와 무관).
+  # init_state: 확장자 없는 이름 → {state_dir}/{init_state}.state
+  # init_state_path: null이 아니면 이 .state 경로를 직접 사용(위 조합보다 우선).
+  # PewterCity.sav → pyboy_states/PewterCity.state 변환: python -m pokemonred_puffer.save_town_state --export-sav PewterCity.sav --export-state-out pyboy_states/PewterCity.state
+  state_dir: pyboy_states
+  init_state: PewterCity
+  init_state_path: ~
+
+  # If true, run without rendering every step (no SDL window).
+  headless: True
+  # Directory to store video output.
+  video_dir: video
+  # How many ticks each environment step should take.
+  action_freq: 24
+  # Maximum number of steps per mini-episode.
+  max_steps: 19816
+  # If true, save videos.
+  save_video: False
+  # If true, save sped up videos.
+  fast_video: False
+  # Number of environments to save videos for.
+  n_record: 10
+  # If true, give all party members max base stats.
+  perfect_ivs: False
+  # If true, downsample the screen observation by 2.
+  reduce_res: True
+  # If true, losslessy compress the screen observation.
+  two_bit: True
+  # How many steps until the environment returns an info.
+  log_frequency: 200
+  # If true, disable the need for Flash.
+  auto_flash: True
+  # If true, disable wild encounters with repels.
+  disable_wild_encounters: False
+  # If true, disable AI input. Useful for debugging.
+  disable_ai_actions: False
+
+  # 탐험-상호작용 RL에서는 field move를 환경이 대신 처리하지 않게 둠
+  # If true, teach cut if possible.
+  auto_teach_cut: False
+  # If true, use cut when standing next to a tree.
+  auto_use_cut: False
+  # If true, use strength when walking into a cave if possible.
+  auto_use_strength: False
+  # If true, use surf when attempting to walk on water.
+  auto_use_surf: False
+  # If true, teach surf if possible.
+  auto_teach_surf: False
+  # If true, teach strength if possible.
+  auto_teach_strength: False
+  # If true, solve a strength puzzle if next to a moveable boulder.
+  auto_solve_strength_puzzles: False
+  # If true, toss all unneeded items when the bag is full.
+  auto_remove_all_nonuseful_items: True
+  # If true, use Pokeflute when next to a Snorlax if possible.
+  auto_pokeflute: False
+  # If true, go to the next floor module num floors when entering an elevator.
+  auto_next_elevator_floor: False
+  # If true, automatically give the player the GOLD TEETH and HM03.
+  # The player will not be allowed in the Safari Zone.
+  skip_safari_zone: False
+  # If true, the player will have no cap on the number of steps when in the
+  # Safari Zone
+  infinite_safari_steps: False
+  # If true, place a Lemonade in the player's bag if there is no Lemonade when
+  # in the Celadon Mart.
+  insert_saffron_guard_drinks: False
+  # If true, give the player infinite money.
+  infinite_money: True
+  # If true, all Party Pokemon will have a fixed HP of 128.
+  infinite_health: False
+  # If true, use the global map observation.
+  use_global_map: False
+  # If true, provide the PyBoy save state as a part of infos.
+  save_state: True
+  # If true, animate scripts. Script animations will not be a part of obs.
+  # This flag is good for debugging.
+  animate_scripts: False
+  # The value on the exploration map for visiting a new coordinate.
+  exploration_inc: 1.0
+  # The max possible value on the exploration map.
+  exploration_max: 1.0
+  # The amount to scale max steps by. Will be multiplied by the number of required items and events.
+  max_steps_scaling: 0
+  # The scaling for visiting important map IDs.
+  map_id_scalefactor: 9.539340019226074
+  # Pewter(Brock) 클리어 시 에피소드 종료 (wObtainedBadges bit 0).
+  end_episode_on_first_gym: True
+
+  # How many agents must reach a required event before all agents are allowed to continue.
+  # If an agent reaches a milestone and the required tolerance is not met, the episode will reset.
+  required_tolerance: null
+  # required_tolerance: 0.02
+
+train:
+  exp_id: pokemon-red-002
+  # Random seed
+  seed: 1
+  # Use deterministic Torch algorithms
+  torch_deterministic: True
+  # Device to run training on.
+  device: cpu
+  # If true, use torch.compile
+  compile: True
+  # The mode for torch compilation
+  compile_mode: "reduce-overhead"
+  # Mostly useless for Pokemon, enables tensor cores on NVIDIA GPUs.
+  float32_matmul_precision: "high"
+  # The total time steps to run training for.
+  total_timesteps: 10_000_000_000
+  # The number of examples for one epoch of training.
+  batch_size: 4096
+  # The number of example to train for one batch of training.
+  minibatch_size: 1024
+  # If true, turn on learning rate annealing.
+  anneal_lr: False
+  # Unused
+  num_minibatches: 4
+  # Number of epochs when training.
+  update_epochs: 3
+  # If true, use normalized advantage.
+  norm_adv: True
+  # Entropy coefficient. More means more random actions.
+  ent_coef: 0.01001337416019442
+  # Generalized advantage estimate
+  gae_lambda: 0.949936199629264
+  # Decay parameter for advantage estimation.
+  gamma: 0.9979900678597386
+  # How strongly to clip gradients.
+  clip_coef: 0.1
+  clip_vloss: True
+  # Learning rate.
+  learning_rate: 0.00019999482124740103
+  # Max norm of the gradients
+  max_grad_norm: 0.5
+  target_kl: ~
+  vf_clip_coef: 0.1
+  vf_coef: 0.5319333384064214
+  # unused
+  batch_rows: 128
+  # backprop through time horizon.
+  bptt_horizon: 16
+
+  # Number of environments for training.
+  num_envs: 8
+  # Number of workers (processes) for training.
+  # Environments are divided evenly across workers.
+  num_workers: 8
+  # Number of workers to report per step.
+  env_batch_size: 1
+  # Use PufferLib EnvPool
+  env_pool: True
+  # Use PufferLib's zero copy EnvPool.
+  zero_copy: False
+
+  # Verbose terminal reporting (Rich 대시보드: SPS·손실·User Stats).
+  verbose: True
+  # Directory to store checkpoints in.
+  data_dir: runs
+  # If true, save checkpoints.
+  save_checkpoint: False
+  # How often to save checkpoints.
+  checkpoint_interval: 200
+  # RL 정책 재개(PyTorch): runs/pokemon-red-xxxx 또는 model_000123.pt — env.init_state와 무관
+  # 경로 비어 있으면 기본: exp_id 폴더에서 model_NNNNNN.pt 중 디스크 수정 시각(mtime) 최신 → 없으면 runs 전체 동일 규칙
+  # 문자열 latest / auto = 아래 resume_latest_global 반영한 탐색(역시 mtime 기준)
+  resume_checkpoint: ~
+  # true 이면 가중치 자동 로드 안 함 (CLI --fresh 와 동일)
+  resume_fresh: false
+  # resume_checkpoint 가 비어 있을 때 true 이면 latest 와 동일하게 최신 체크포인트 탐색
+  resume_latest: false
+  # latest/auto 탐색 시 exp_id 폴더에 없으면 runs 전체에서 mtime 최신 model_*.pt
+  resume_latest_global: false
+  load_optimizer_state: false
+  # 첫 관장(바위배지) 클리어 시 runs/<exp>/model_first_gym.pt 저장 (한 번).
+  save_on_first_gym: True
+
+  # wandb environment/* 스칼라: reward_only = 리워드 분해(reward/*) + reward_sum 만; full = 예전처럼 전부
+  wandb_environment_metrics: reward_only
+  # Log global map overlay to wandb
+  save_overlay: True
+  # How often to log global map to wandb.
+  overlay_interval: 20
+  # Use PufferLib's CPU data offloading.
+  cpu_offload: False
+  # Use RNN network. False is not supported
+  use_rnn: True
+  # Use multiprocessing to asynchronously reset the agents
+  # when required new events and items are observed.
+  async_wrapper: False
+  # Use a shared SQLite DB to reset the agents
+  # when required new events and items are observed.
+  sqlite_wrapper: True
+  # Save PyBoy states when new required events and items are observed.
+  archive_states: False #True
+  # When a new required events and items are observed, move
+  # all environments to the save state for the environment that made
+  # the observation
+  swarm: False #True
+  # event name: minutes. If we dont satisfy each condition
+  # we early stop
+  # The defaults have a margin of error
+  # If set, train until all events are accomplished.
+  one_epoch:
+    - "EVENT_BEAT_CHAMPION_RIVAL"
+    # - HM_03
+    # - HM_04
+    # - "EVENT_BEAT_ERIKA"
+  # If true, provide the percentage completion rate for required
+  # items to the environments.
+  required_rate: False
+  early_stop: {}
+
+# Wrappers to use for training.
+# Each wrapper is keyed by a name for the commandline.
+# The value for each key is the list of wrappers to support.
+# Wrappers can be found in the wrappers directory.
+wrappers:
+  empty:
+    - episode_stats.EpisodeStatsWrapper: {}
+
+  recorder:
+    - coords_writer.CoordinatesWriter:
+        output_dir: runs
+        write_frequency: 1000
+
+  # 기본 wrapper도 탐험-상호작용용으로 맞춤
+  baseline:
+    - stream_wrapper.StreamWrapper:
+        user: taeho2004
+    - exploration.OnResetExplorationWrapper:
+        full_reset_frequency: 1
+        jitter: 0
+
+  # 명시적으로 쓸 수 있는 별도 이름도 추가
+  exploration_interaction:
+    - stream_wrapper.StreamWrapper:
+        user: taeho2004
+    - exploration.OnResetExplorationWrapper:
+        full_reset_frequency: 1
+        jitter: 0
+
+  finite_coords:
+    - stream_wrapper.StreamWrapper:
+        user: taeho2004
+    - exploration.MaxLengthWrapper:
+        capacity: 1750
+    - exploration.OnResetExplorationWrapper:
+        full_reset_frequency: 1
+        jitter: 0
+
+  stream_only_with_coords:
+    - coords_writer.CoordinatesWriter:
+        output_dir: runs
+        write_frequency: 1000
+    - stream_wrapper.StreamWrapper:
+        user: taeho2004
+    - exploration.OnResetExplorationWrapper:
+        full_reset_frequency: 1
+        jitter: 0
+
+  stream_only:
+    - stream_wrapper.StreamWrapper:
+        user: taeho2004
+    - exploration.OnResetExplorationWrapper:
+        full_reset_frequency: 1
+        jitter: 0
+
+  fixed_reset_value:
+    - stream_wrapper.StreamWrapper:
+        user: taeho2004
+    - exploration.OnResetLowerToFixedValueWrapper:
+        fixed_value:
+          coords: 0.33
+          map_ids: 0.33
+          npc: 0.33
+          cut: 0.33
+          explore: 0.33
+    - exploration.OnResetExplorationWrapper:
+        full_reset_frequency: 25
+        jitter: 0
+    - episode_stats.EpisodeStatsWrapper: {}
+
+# Rewards to use for training.
+# Each reward is keyed by a name for the commandline.
+# The value for each key is the list of rewards to support.
+# Rewards can be found in the rewards directory.
+rewards:
+  baseline.ExplorationInteractionRewardEnv:
+    reward:
+      event: 3.0 #1.0
+      item: 2.0 #0.75
+      gym_core_npc: 3.5
+      npc_first_talk: 3.0
+      object_first_interaction: 0.6
+      new_tile: 0.02
+      new_building: 3.0
+      new_room: 2.5
+      new_npc_textbox: 0.8
+      script_step: 0.007
+      step_penalty: -0.00001 #-0.0001
+      repeat_npc_penalty: -0.05
+      invalid_interaction: -0.005
+      start_menu_penalty: -0.035
+      stuck_penalty: -0.004
+      # 임시: 배틀 승리(wBattleResult==0) — 관장/트레이너 유도용
+      battle_win: 2.5
+      # blackout(전체 기절) 후 부활로 HP가 올라오는 경우 제외
+      pokecenter_heal_hp: 0.05
+
+# Policies to use for training.
+# Each policy is keyed by a name for the commandline.
+# The value for each key is the list of policies to support.
+# Policies can be found in the policies directory.
+policies:
+  multi_convolutional.MultiConvolutionalPolicy:
+    policy:
+      hidden_size: 512
+
+    rnn:
+      # Assumed to be in the same module as the policy
+      name: MultiConvolutionalRNN
+      args:
+        input_size: 512
+        hidden_size: 512
+        num_layers: 1
+
+# Debug overrides.
+debug:
+  env:
+    headless: True
+    stream_wrapper: False
+    max_steps: 19000
+    log_frequency: 1
+    disable_ai_actions: False
+    use_global_map: False
+    reduce_res: True
+    animate_scripts: False
+    save_state: False
+    save_video: False
+    fast_video: False
+    auto_flash: True
+    disable_wild_encounters: True
+    auto_teach_cut: False
+    auto_use_cut: False
+    auto_use_strength: False
+    auto_use_surf: False
+    auto_teach_surf: False
+    auto_teach_strength: False
+    auto_solve_strength_puzzles: False
+    auto_remove_all_nonuseful_items: False
+    auto_pokeflute: False
+    auto_next_elevator_floor: False
+    skip_safari_zone: False
+    infinite_safari_steps: False
+    infinite_health: True
+    insert_saffron_guard_drinks: False
+    perfect_ivs: False
+    two_bit: False
+  train:
+    device: cpu
+    compile: False
+    compile_mode: default
+    num_envs: 1
+    envs_per_worker: 1
+    num_workers: 1
+    env_batch_size: 128
+    zero_copy: False
+    batch_size: 1024
+    minibatch_size: 128
+    batch_rows: 4
+    bptt_horizon: 2
+    total_timesteps: 1_000_000
+    save_checkpoint: True
+    checkpoint_interval: 4
+    save_overlay: True
+    overlay_interval: 1
+    verbose: True
+    env_pool: False
+    load_optimizer_state: False
+    async_wrapper: False
+    sqlite_wrapper: False
+    archive_states: False

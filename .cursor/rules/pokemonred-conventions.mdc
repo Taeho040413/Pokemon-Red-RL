@@ -1,0 +1,104 @@
+---
+description: Project architecture, coding conventions, and extension patterns for the Pokemon Red RL codebase
+globs: pokemonred_puffer/**/*.py
+alwaysApply: false
+---
+
+# Pokemon Red RL — Project Conventions
+
+## Architecture
+
+All source code lives under `pokemonred_puffer/`. Never place runnable modules outside this directory.
+
+| Directory / File | Purpose |
+|---|---|
+| `rewards/` | `RedGymEnv` subclasses that define the reward signal |
+| `wrappers/` | `gym.Wrapper` subclasses for observation/action transforms and logging |
+| `policies/` | Neural network policy classes |
+| `data/` | Pure constants, enums, and lookup tables — **no logic** |
+| `environment.py` | Core `RedGymEnv` gym environment — extend, don't modify for reward logic |
+| `cleanrl_puffer.py` | Training loop — do not add game-specific logic here |
+
+## Extending the Environment
+
+### Adding a Reward Class
+
+Subclass `BaselineRewardEnv` (or `RedGymEnv` if starting from scratch) in `rewards/`.
+Register it in `config.yaml` keyed as `module_name.ClassName`.
+
+```python
+# rewards/my_reward.py
+from pokemonred_puffer.rewards.baseline import BaselineRewardEnv
+
+class MyRewardEnv(BaselineRewardEnv):
+    def get_game_state_reward(self) -> dict[str, float]:
+        return {
+            "event": self.reward_config.get("event", 1.0) * self.update_max_event_rew(),
+            "level": self.reward_config.get("level", 1.0) * self.get_levels_reward(),
+        }
+```
+
+### Adding a Wrapper
+
+Subclass `gym.Wrapper` in `wrappers/`. Override `step()` / `reset()` only.
+Access the base env via `self.env.unwrapped` when you need `RedGymEnv` internals.
+
+```python
+# wrappers/my_wrapper.py
+import gymnasium as gym
+from omegaconf import DictConfig
+from pokemonred_puffer.environment import RedGymEnv
+
+class MyWrapper(gym.Wrapper):
+    def __init__(self, env: RedGymEnv, reward_config: DictConfig):
+        super().__init__(env)
+        self.my_param = reward_config.my_param
+
+    def step(self, action):
+        obs, reward, terminated, truncated, info = self.env.step(action)
+        reward += self._extra_reward()
+        return obs, reward, terminated, truncated, info
+```
+
+## Code Conventions
+
+### Naming
+- `snake_case` — variables, functions, module-level mutable state
+- `PascalCase` — classes
+- `UPPER_SNAKE_CASE` — public module-level constants and `Enum` members
+- `_LOWER_SNAKE_CASE` — module-private constants (prefix with `_`)
+
+### Type Hints
+Use Python 3.10+ built-in generics — never import from `typing` for these:
+
+```python
+# ✅
+def foo(x: list[int], y: dict[str, float]) -> tuple[int, ...]: ...
+
+# ❌
+from typing import List, Dict, Tuple
+def foo(x: List[int], y: Dict[str, float]) -> Tuple[int, ...]: ...
+```
+
+### Constants and Data
+- All game-data constants (map IDs, item IDs, event flags) belong in `data/` as `frozenset`, `Enum`, or plain `dict`.
+- Never hardcode numeric addresses or magic values inline — reference the `pokered.sym` symbol table via `read_m("wSymbolName")`.
+
+```python
+# ✅
+_OUTDOOR_TILESETS: frozenset[int] = frozenset({Tilesets.OVERWORLD.value, Tilesets.FOREST.value})
+
+# ❌
+if tileset in {0, 3, 5}:
+    ...
+```
+
+### Configuration
+- Accept runtime config as `DictConfig` (omegaconf); access values via attribute or `.get(key, default)`.
+- Never mutate a `DictConfig` — convert with `OmegaConf.to_object()` when a plain `dict` is needed.
+
+### Formatting
+- Line length: **100 characters** (enforced by ruff/Black).
+- Imports: stdlib → third-party → `pokemonred_puffer` local, each group alphabetically sorted.
+- Double quotes for strings.
+- Run `ruff check --fix` and `ruff format` before committing (pre-commit hook handles this automatically).
