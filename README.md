@@ -1,5 +1,7 @@
 # Pokemon Red (RL Edition)
 
+> 포켓몬스터 레드버전 강화학습 구현 · [저장소](https://github.com/Taeho040413/Pokemon-Red-RL)
+
 ![Tests](https://github.com/thatguy11325/pokemonred_puffer/actions/workflows/workflow.yml/badge.svg)
 
 This repo is designed as a library to be used for Pokemon Red RL development. It contains some convenience functions that should not be used in a library setting and should be forked. In the future, those convenience functions will be migrated so no forking is needed.
