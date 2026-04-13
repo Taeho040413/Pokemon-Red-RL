@@ -1,0 +1,14 @@
+{
+  "os": "Linux-5.15.0-78-generic-x86_64-with-glibc2.35",
+  "python": "CPython 3.10.20",
+  "startedAt": "2026-04-13T03:15:34.202005Z",
+  "args": [
+    "train",
+    "--track"
+  ],
+  "program": "-m pokemonred_puffer.train",
+  "root": "/home/pnudtn06/yuntaeho/pokemonred_clean",
+  "host": "devbox",
+  "executable": "/home/pnudtn06/.conda/envs/pokerl310/bin/python3",
+  "writerId": "nxtdqnabxs2iuzx67ayhv3juzt9e2535"
+}

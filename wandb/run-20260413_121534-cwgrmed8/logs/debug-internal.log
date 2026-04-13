@@ -1,0 +1,18 @@
+{"time":"2026-04-13T12:15:34.427537217+09:00","level":"INFO","msg":"wandb-core"}
+{"time":"2026-04-13T12:15:34.428726967+09:00","level":"INFO","msg":"stream: starting","core version":"0.25.1"}
+{"time":"2026-04-13T12:15:34.784738973+09:00","level":"INFO","msg":"stream: created new stream","id":"cwgrmed8"}
+{"time":"2026-04-13T12:15:34.784821363+09:00","level":"INFO","msg":"handler: started"}
+{"time":"2026-04-13T12:15:34.784939793+09:00","level":"INFO","msg":"stream: started"}
+{"time":"2026-04-13T12:15:34.784959583+09:00","level":"INFO","msg":"sender: started"}
+{"time":"2026-04-13T12:15:34.784988283+09:00","level":"INFO","msg":"writer: started","stream_id":"cwgrmed8"}
+{"time":"2026-04-13T12:15:35.491447634+09:00","level":"WARN","msg":"handleCodeSave: program relative path is empty"}
+{"time":"2026-04-13T12:15:35.491600374+09:00","level":"ERROR","msg":"git repo not found","error":"repository does not exist"}
+{"time":"2026-04-13T12:15:35.589327343+09:00","level":"INFO","msg":"filestream: sending request","total_files":1,"console_offset":0,"console_lines":1}
+{"time":"2026-04-13T12:15:35.602671357+09:00","level":"INFO","msg":"stream: closing"}
+{"time":"2026-04-13T12:15:35.928230154+09:00","level":"INFO","msg":"filestream: request sent","status":"200 OK"}
+{"time":"2026-04-13T12:15:36.6198084+09:00","level":"INFO","msg":"fileTransfer: Close: file transfer manager closed"}
+{"time":"2026-04-13T12:15:36.62021652+09:00","level":"INFO","msg":"filestream: sending request","total_files":2,"console_offset":1,"console_lines":61,"uploaded_len":5,"complete":true,"exit_code":1}
+{"time":"2026-04-13T12:15:36.910092317+09:00","level":"INFO","msg":"filestream: request sent","status":"200 OK"}
+{"time":"2026-04-13T12:15:36.910383637+09:00","level":"INFO","msg":"handler: closed"}
+{"time":"2026-04-13T12:15:36.910494887+09:00","level":"INFO","msg":"sender: closed"}
+{"time":"2026-04-13T12:15:36.910502657+09:00","level":"INFO","msg":"stream: closed"}

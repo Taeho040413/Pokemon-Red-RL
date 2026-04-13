@@ -1,0 +1,187 @@
+[resume] 최신 체크포인트 자동 선택: /home/pnudtn06/yuntaeho/pokemonred_clean/runs/pokemon-red-003/model_000083.pt
+[resume] 로드할 모델 파일: /home/pnudtn06/yuntaeho/pokemonred_clean/runs/pokemon-red-003/model_000083.pt
+/home/pnudtn06/.conda/envs/pokerl310/lib/python3.10/site-packages/gymnasium/core.py:311: UserWarning: [33mWARN: env.env_id to get variables from other wrappers is deprecated and will be removed in v1.0, to get this variable you can do `env.unwrapped.env_id` for environment variables or `env.get_wrapper_attr('env_id')` that will search the reminding wrappers.[0m
+  logger.warn(
+Initialized sqlite row 0
+/home/pnudtn06/.conda/envs/pokerl310/lib/python3.10/site-packages/gymnasium/core.py:311: UserWarning: [33mWARN: env.two_bit to get variables from other wrappers is deprecated and will be removed in v1.0, to get this variable you can do `env.unwrapped.two_bit` for environment variables or `env.get_wrapper_attr('two_bit')` that will search the reminding wrappers.[0m
+  logger.warn(
+/home/pnudtn06/.conda/envs/pokerl310/lib/python3.10/site-packages/gymnasium/core.py:311: UserWarning: [33mWARN: env.use_global_map to get variables from other wrappers is deprecated and will be removed in v1.0, to get this variable you can do `env.unwrapped.use_global_map` for environment variables or `env.get_wrapper_attr('use_global_map')` that will search the reminding wrappers.[0m
+  logger.warn(
+[2J[H[0;0H[96m╭────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╮[0m
+/home/pnudtn06/.conda/envs/pokerl310/lib/python3.10/site-packages/numpy/core/fromnumeric.py:3432: RuntimeWarning: Mean of empty slice.
+  return _methods._mean(a, axis=axis, dtype=dtype,
+/home/pnudtn06/.conda/envs/pokerl310/lib/python3.10/site-packages/numpy/core/_methods.py:190: RuntimeWarning: invalid value encountered in double_scalars
+  ret = ret.dtype.type(ret / rcount)
+[96m│[0m  🐡 [96mPufferLib [0m[97m1.0.0[0m                                                                            [96mCPU: [0m[36mnan%[0m                           [96mGPU: [0m[36mnan%[0m                            [96mDRAM: [0m[36m0.3%[0m                                         [96mVRAM: [0m[36mnan%[0m  [96m│[0m
+[96m│[0m [1m                                                                           [0m[1m [0m[1m [0m[1m                                                                             [0m[1m [0m[1m [0m[1m                                                                          [0m [96m│[0m
+[96m│[0m [1m [0m[1;96mSummary[0m[1m                                        [0m[1m [0m[1m [0m[1m                   [0m[1;96mValue[0m[1m [0m   [96mEvaluate[0m                                                 [97m0[0m[37ms[0m             [97m 0%[0m   [1m [0m[1;96mLosses[0m[1m                                        [0m[1m [0m[1m [0m[1m                   [0m[1;96mValue[0m[1m [0m [96m│[0m
+[96m│[0m  [37mEnvironment[0m                                                   [97mPokemon Red[0m    [96m  Forward[0m                                                [97m0[0m[37ms[0m             [97m 0%[0m    [37mpolicy_loss[0m                                                        [97m0.000[0m  [96m│[0m
+[96m│[0m  [37mAgent Steps[0m                                                             [97m0[0m    [96m  Env[0m                                                    [97m0[0m[37ms[0m             [97m 0%[0m    [37mvalue_loss[0m                                                         [97m0.000[0m  [96m│[0m
+[96m│[0m  [37mSPS[0m                                                                     [97m0[0m    [96m  Misc[0m                                                   [97m0[0m[37ms[0m             [97m 0%[0m    [37mentropy[0m                                                            [97m0.000[0m  [96m│[0m
+[96m│[0m  [37mEpoch[0m                                                                   [97m0[0m    [96mTrain[0m                                                    [97m0[0m[37ms[0m             [97m 0%[0m    [37mold_approx_kl[0m                                                      [97m0.000[0m  [96m│[0m
+[96m│[0m  [37mUptime[0m                                                                 [97m0[0m[37ms[0m    [96m  Forward[0m                                                [97m0[0m[37ms[0m             [97m 0%[0m    [37mapprox_kl[0m                                                          [97m0.000[0m  [96m│[0m
+[96m│[0m  [37mRemaining[0m                                                              [97m0[0m[37ms[0m    [96m  Learn[0m                                                  [97m0[0m[37ms[0m             [97m 0%[0m    [37mclipfrac[0m                                                           [97m0.000[0m  [96m│[0m
+[96m│[0m                                                                               [96m  Misc[0m                                                   [97m0[0m[37ms[0m             [97m 0%[0m    [37mexplained_variance[0m                                                 [97m0.000[0m  [96m│[0m
+[96m│[0m [1m                                                                                                                  [0m[1m [0m[1m [0m[1m                                                                                                                  [0m [96m│[0m
+[96m│[0m [1m [0m[1;96mUser Stats[0m[1m                                                                    [0m[1m [0m[1m [0m[1m                           [0m[1;96mValue[0m[1m [0m  [1m [0m[1;96mUser Stats[0m[1m                                                                    [0m[1m [0m[1m [0m[1m                           [0m[1;96mValue[0m[1m [0m [96m│[0m
+[96m│[0m [1m                                                                                                                                                                                                                                      [0m [96m│[0m
+[96m│[0m  [96mMessage: [0m                                                                                                                                                                                                                             [96m│[0m
+[96m╰────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╯[0m
+
+[resume] 정책 가중치 로드 완료: /home/pnudtn06/yuntaeho/pokemonred_clean/runs/pokemon-red-003/model_000083.pt
+Done training.
+[checkpoint] 저장 완료
+[checkpoint] 모델 경로: runs/pokemon-red-003/model_000000.pt
+[checkpoint] 트레이너 상태 경로: runs/pokemon-red-003/trainer_state.pt
+[checkpoint] 저장 완료
+[checkpoint] 모델 경로: runs/pokemon-red-003/model_000000.pt
+[checkpoint] 트레이너 상태 경로: runs/pokemon-red-003/trainer_state.pt
+[34m[1mwandb[0m: [32m[41mERROR[0m API key verification failed for host https://api.wandb.ai. Make sure your API key is valid.
+Traceback (most recent call last):
+  File "/home/pnudtn06/yuntaeho/pokemonred_clean/pokemonred_puffer/train.py", line 830, in train
+    trainer.evaluate()
+  File "/home/pnudtn06/.conda/envs/pokerl310/lib/python3.10/site-packages/pufferlib/utils.py", line 336, in wrapper
+    result = func(*args, **kwargs)
+  File "/home/pnudtn06/yuntaeho/pokemonred_clean/pokemonred_puffer/cleanrl_puffer.py", line 531, in evaluate
+    overlay = make_pokemon_red_overlay(np.stack(self.infos[k], axis=0))
+  File "/home/pnudtn06/yuntaeho/pokemonred_clean/pokemonred_puffer/eval.py", line 22, in make_pokemon_red_overlay
+    return _make_pokemon_red_overlay_rgb(counts)
+  File "/home/pnudtn06/yuntaeho/pokemonred_clean/pokemonred_puffer/eval.py", line 53, in _make_pokemon_red_overlay_rgb
+    render = np.clip(render, 0, 255).astype(np.uint8)
+  File "<__array_function__ internals>", line 180, in clip
+  File "/home/pnudtn06/.conda/envs/pokerl310/lib/python3.10/site-packages/numpy/core/fromnumeric.py", line 2154, in clip
+    return _wrapfunc(a, 'clip', a_min, a_max, out=out, **kwargs)
+  File "/home/pnudtn06/.conda/envs/pokerl310/lib/python3.10/site-packages/numpy/core/fromnumeric.py", line 57, in _wrapfunc
+    return bound(*args, **kwds)
+  File "/home/pnudtn06/.conda/envs/pokerl310/lib/python3.10/site-packages/numpy/core/_methods.py", line 160, in _clip
+    return _clip_dep_invoke_with_casting(
+  File "/home/pnudtn06/.conda/envs/pokerl310/lib/python3.10/site-packages/numpy/core/_methods.py", line 114, in _clip_dep_invoke_with_casting
+    return ufunc(*args, out=out, **kwargs)
+KeyboardInterrupt
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/pnudtn06/.conda/envs/pokerl310/lib/python3.10/runpy.py", line 196, in _run_module_as_main
+    return _run_code(code, main_globals, None,
+  File "/home/pnudtn06/.conda/envs/pokerl310/lib/python3.10/runpy.py", line 86, in _run_code
+    exec(code, run_globals)
+  File "/home/pnudtn06/yuntaeho/pokemonred_clean/pokemonred_puffer/train.py", line 837, in <module>
+    app()
+  File "/home/pnudtn06/.conda/envs/pokerl310/lib/python3.10/site-packages/typer/main.py", line 1152, in __call__
+    raise e
+  File "/home/pnudtn06/.conda/envs/pokerl310/lib/python3.10/site-packages/typer/main.py", line 1135, in __call__
+    return get_command(self)(*args, **kwargs)
+  File "/home/pnudtn06/.conda/envs/pokerl310/lib/python3.10/site-packages/click/core.py", line 1485, in __call__
+    return self.main(*args, **kwargs)
+  File "/home/pnudtn06/.conda/envs/pokerl310/lib/python3.10/site-packages/typer/core.py", line 795, in main
+    return _main(
+  File "/home/pnudtn06/.conda/envs/pokerl310/lib/python3.10/site-packages/typer/core.py", line 188, in _main
+    rv = self.invoke(ctx)
+  File "/home/pnudtn06/.conda/envs/pokerl310/lib/python3.10/site-packages/click/core.py", line 1873, in invoke
+    return _process_result(sub_ctx.command.invoke(sub_ctx))
+  File "/home/pnudtn06/.conda/envs/pokerl310/lib/python3.10/site-packages/click/core.py", line 1269, in invoke
+    return ctx.invoke(self.callback, **ctx.params)
+  File "/home/pnudtn06/.conda/envs/pokerl310/lib/python3.10/site-packages/click/core.py", line 824, in invoke
+    return callback(*args, **kwargs)
+  File "/home/pnudtn06/.conda/envs/pokerl310/lib/python3.10/site-packages/typer/main.py", line 1514, in wrapper
+    return callback(**use_params)
+  File "/home/pnudtn06/yuntaeho/pokemonred_clean/pokemonred_puffer/train.py", line 817, in train
+    with CleanPuffeRL(
+  File "/home/pnudtn06/yuntaeho/pokemonred_clean/pokemonred_puffer/cleanrl_puffer.py", line 828, in __exit__
+    self.close()
+  File "/home/pnudtn06/yuntaeho/pokemonred_clean/pokemonred_puffer/cleanrl_puffer.py", line 754, in close
+    self.wandb_client.log_artifact(artifact)
+  File "/home/pnudtn06/.conda/envs/pokerl310/lib/python3.10/site-packages/wandb/sdk/wandb_run.py", line 399, in wrapper
+    return func(self, *args, **kwargs)
+  File "/home/pnudtn06/.conda/envs/pokerl310/lib/python3.10/site-packages/wandb/sdk/wandb_run.py", line 457, in wrapper_fn
+    return func(self, *args, **kwargs)
+  File "/home/pnudtn06/.conda/envs/pokerl310/lib/python3.10/site-packages/wandb/sdk/wandb_run.py", line 444, in wrapper
+    return func(self, *args, **kwargs)
+  File "/home/pnudtn06/.conda/envs/pokerl310/lib/python3.10/site-packages/wandb/sdk/wandb_run.py", line 3171, in log_artifact
+    return self._log_artifact(
+  File "/home/pnudtn06/.conda/envs/pokerl310/lib/python3.10/site-packages/wandb/sdk/wandb_run.py", line 3316, in _log_artifact
+    self._assert_can_log_artifact(artifact)
+  File "/home/pnudtn06/.conda/envs/pokerl310/lib/python3.10/site-packages/wandb/sdk/wandb_run.py", line 3377, in _assert_can_log_artifact
+    public_api = self._public_api()
+  File "/home/pnudtn06/.conda/envs/pokerl310/lib/python3.10/site-packages/wandb/sdk/wandb_run.py", line 3365, in _public_api
+    self._cached_public_api = public.Api(overrides, api_key=self._settings.api_key)
+  File "/home/pnudtn06/.conda/envs/pokerl310/lib/python3.10/site-packages/wandb/apis/public/api.py", line 205, in __init__
+    wandb_login._verify_login(
+  File "/home/pnudtn06/.conda/envs/pokerl310/lib/python3.10/site-packages/wandb/sdk/wandb_login.py", line 310, in _verify_login
+    raise AuthenticationError(
+wandb.errors.errors.AuthenticationError: API key verification failed for host https://api.wandb.ai. Make sure your API key is valid.
+Traceback (most recent call last):
+  File "/home/pnudtn06/yuntaeho/pokemonred_clean/pokemonred_puffer/train.py", line 830, in train
+    trainer.evaluate()
+  File "/home/pnudtn06/.conda/envs/pokerl310/lib/python3.10/site-packages/pufferlib/utils.py", line 336, in wrapper
+    result = func(*args, **kwargs)
+  File "/home/pnudtn06/yuntaeho/pokemonred_clean/pokemonred_puffer/cleanrl_puffer.py", line 531, in evaluate
+    overlay = make_pokemon_red_overlay(np.stack(self.infos[k], axis=0))
+  File "/home/pnudtn06/yuntaeho/pokemonred_clean/pokemonred_puffer/eval.py", line 22, in make_pokemon_red_overlay
+    return _make_pokemon_red_overlay_rgb(counts)
+  File "/home/pnudtn06/yuntaeho/pokemonred_clean/pokemonred_puffer/eval.py", line 53, in _make_pokemon_red_overlay_rgb
+    render = np.clip(render, 0, 255).astype(np.uint8)
+  File "<__array_function__ internals>", line 180, in clip
+  File "/home/pnudtn06/.conda/envs/pokerl310/lib/python3.10/site-packages/numpy/core/fromnumeric.py", line 2154, in clip
+    return _wrapfunc(a, 'clip', a_min, a_max, out=out, **kwargs)
+  File "/home/pnudtn06/.conda/envs/pokerl310/lib/python3.10/site-packages/numpy/core/fromnumeric.py", line 57, in _wrapfunc
+    return bound(*args, **kwds)
+  File "/home/pnudtn06/.conda/envs/pokerl310/lib/python3.10/site-packages/numpy/core/_methods.py", line 160, in _clip
+    return _clip_dep_invoke_with_casting(
+  File "/home/pnudtn06/.conda/envs/pokerl310/lib/python3.10/site-packages/numpy/core/_methods.py", line 114, in _clip_dep_invoke_with_casting
+    return ufunc(*args, out=out, **kwargs)
+KeyboardInterrupt
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/pnudtn06/.conda/envs/pokerl310/lib/python3.10/runpy.py", line 196, in _run_module_as_main
+    return _run_code(code, main_globals, None,
+  File "/home/pnudtn06/.conda/envs/pokerl310/lib/python3.10/runpy.py", line 86, in _run_code
+    exec(code, run_globals)
+  File "/home/pnudtn06/yuntaeho/pokemonred_clean/pokemonred_puffer/train.py", line 837, in <module>
+    app()
+  File "/home/pnudtn06/.conda/envs/pokerl310/lib/python3.10/site-packages/typer/main.py", line 1152, in __call__
+    raise e
+  File "/home/pnudtn06/.conda/envs/pokerl310/lib/python3.10/site-packages/typer/main.py", line 1135, in __call__
+    return get_command(self)(*args, **kwargs)
+  File "/home/pnudtn06/.conda/envs/pokerl310/lib/python3.10/site-packages/click/core.py", line 1485, in __call__
+    return self.main(*args, **kwargs)
+  File "/home/pnudtn06/.conda/envs/pokerl310/lib/python3.10/site-packages/typer/core.py", line 795, in main
+    return _main(
+  File "/home/pnudtn06/.conda/envs/pokerl310/lib/python3.10/site-packages/typer/core.py", line 188, in _main
+    rv = self.invoke(ctx)
+  File "/home/pnudtn06/.conda/envs/pokerl310/lib/python3.10/site-packages/click/core.py", line 1873, in invoke
+    return _process_result(sub_ctx.command.invoke(sub_ctx))
+  File "/home/pnudtn06/.conda/envs/pokerl310/lib/python3.10/site-packages/click/core.py", line 1269, in invoke
+    return ctx.invoke(self.callback, **ctx.params)
+  File "/home/pnudtn06/.conda/envs/pokerl310/lib/python3.10/site-packages/click/core.py", line 824, in invoke
+    return callback(*args, **kwargs)
+  File "/home/pnudtn06/.conda/envs/pokerl310/lib/python3.10/site-packages/typer/main.py", line 1514, in wrapper
+    return callback(**use_params)
+  File "/home/pnudtn06/yuntaeho/pokemonred_clean/pokemonred_puffer/train.py", line 817, in train
+    with CleanPuffeRL(
+  File "/home/pnudtn06/yuntaeho/pokemonred_clean/pokemonred_puffer/cleanrl_puffer.py", line 828, in __exit__
+    self.close()
+  File "/home/pnudtn06/yuntaeho/pokemonred_clean/pokemonred_puffer/cleanrl_puffer.py", line 754, in close
+    self.wandb_client.log_artifact(artifact)
+  File "/home/pnudtn06/.conda/envs/pokerl310/lib/python3.10/site-packages/wandb/sdk/wandb_run.py", line 399, in wrapper
+    return func(self, *args, **kwargs)
+  File "/home/pnudtn06/.conda/envs/pokerl310/lib/python3.10/site-packages/wandb/sdk/wandb_run.py", line 457, in wrapper_fn
+    return func(self, *args, **kwargs)
+  File "/home/pnudtn06/.conda/envs/pokerl310/lib/python3.10/site-packages/wandb/sdk/wandb_run.py", line 444, in wrapper
+    return func(self, *args, **kwargs)
+  File "/home/pnudtn06/.conda/envs/pokerl310/lib/python3.10/site-packages/wandb/sdk/wandb_run.py", line 3171, in log_artifact
+    return self._log_artifact(
+  File "/home/pnudtn06/.conda/envs/pokerl310/lib/python3.10/site-packages/wandb/sdk/wandb_run.py", line 3316, in _log_artifact
+    self._assert_can_log_artifact(artifact)
+  File "/home/pnudtn06/.conda/envs/pokerl310/lib/python3.10/site-packages/wandb/sdk/wandb_run.py", line 3377, in _assert_can_log_artifact
+    public_api = self._public_api()
+  File "/home/pnudtn06/.conda/envs/pokerl310/lib/python3.10/site-packages/wandb/sdk/wandb_run.py", line 3365, in _public_api
+    self._cached_public_api = public.Api(overrides, api_key=self._settings.api_key)
+  File "/home/pnudtn06/.conda/envs/pokerl310/lib/python3.10/site-packages/wandb/apis/public/api.py", line 205, in __init__
+    wandb_login._verify_login(
+  File "/home/pnudtn06/.conda/envs/pokerl310/lib/python3.10/site-packages/wandb/sdk/wandb_login.py", line 310, in _verify_login
+    raise AuthenticationError(
+wandb.errors.errors.AuthenticationError: API key verification failed for host https://api.wandb.ai. Make sure your API key is valid.
