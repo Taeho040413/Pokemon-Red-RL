@@ -1,0 +1,18 @@
+{
+  "os": "Linux-5.15.0-78-generic-x86_64-with-glibc2.35",
+  "python": "CPython 3.10.20",
+  "startedAt": "2026-04-13T06:10:54.464484Z",
+  "args": [
+    "train",
+    "--track"
+  ],
+  "program": "-m pokemonred_puffer.train",
+  "git": {
+    "remote": "https://github.com/Taeho040413/pokemonred_clean.git",
+    "commit": "49006250b461571c230319fb39b60e9b6a1230a7"
+  },
+  "root": "/home/pnudtn06/yuntaeho/pokemonred_clean",
+  "host": "devbox",
+  "executable": "/home/pnudtn06/.conda/envs/pokerl310/bin/python3",
+  "writerId": "jenitcb5kuqhf1ny14r04ddhto7e2a27"
+}

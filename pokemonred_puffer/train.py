@@ -826,9 +826,13 @@ def train(
                 resume_trainer_state=resume_trainer_state,
                 resume_load_log_lines=resume_load_log_lines,
             ) as trainer:
+                eval_interval = getattr(config.train, "eval_interval", 1)
+                step = 0
                 while not trainer.done_training():
-                    trainer.evaluate()
+                    if step % eval_interval == 0:
+                        trainer.evaluate()
                     trainer.train()
+                    step += 1
 
             print("Done training")
 

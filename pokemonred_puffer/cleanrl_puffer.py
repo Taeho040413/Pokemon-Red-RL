@@ -597,6 +597,7 @@ class CleanPuffeRL:
             )
             self.experience.flatten_batch(advantages_np)
 
+        update_epochs_done = 0
         for _ in range(self.config.update_epochs):
             lstm_state = None
             for mb in range(self.experience.num_minibatches):
@@ -683,9 +684,19 @@ class CleanPuffeRL:
                     losses.approx_kl += approx_kl.item() / self.experience.num_minibatches
                     losses.clipfrac += clipfrac.item() / self.experience.num_minibatches
 
+            update_epochs_done += 1
             if self.config.target_kl is not None:
                 if approx_kl > self.config.target_kl:
                     break
+
+        if update_epochs_done > 0:
+            inv_epochs = 1.0 / update_epochs_done
+            losses.policy_loss *= inv_epochs
+            losses.value_loss *= inv_epochs
+            losses.entropy *= inv_epochs
+            losses.old_approx_kl *= inv_epochs
+            losses.approx_kl *= inv_epochs
+            losses.clipfrac *= inv_epochs
 
         with self.profile.train_misc:
             if self.config.anneal_lr:

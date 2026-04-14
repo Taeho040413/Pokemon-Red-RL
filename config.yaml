@@ -24,7 +24,7 @@ env:
   # Directory to store video output.
   video_dir: video
   # How many ticks each environment step should take.
-  action_freq: 24
+  action_freq: 12
   # Maximum number of steps per mini-episode.
   max_steps: 25000
   # If true, save videos.
@@ -122,15 +122,15 @@ train:
   # The total time steps to run training for.
   total_timesteps: 10_000_000_000
   # The number of examples for one epoch of training.
-  batch_size: 16384
+  batch_size: 8192
   # The number of example to train for one batch of training.
-  minibatch_size: 1024
+  minibatch_size: 512
   # If true, turn on learning rate annealing.
   anneal_lr: False
   # Unused
   num_minibatches: 4
   # Number of epochs when training.
-  update_epochs: 6
+  update_epochs: 8
   # If true, use normalized advantage.
   norm_adv: True
   # Entropy coefficient. More means more random actions.
@@ -155,12 +155,12 @@ train:
   bptt_horizon: 16
 
   # Number of environments for training.
-  num_envs: 64
+  num_envs: 256
   # Number of workers (processes) for training.
   # Environments are divided evenly across workers.
-  num_workers: 4
-  # PufferLib: env_batch_size % (num_envs / num_workers) == 0 이어야 함 (예: 128/8=16 → 1은 불가).
-  env_batch_size: 16
+  num_workers: 8
+  # PufferLib: env_batch_size % (num_envs / num_workers) == 0 (128/4=32 → 16 불가, 32·64·128 가능).
+  env_batch_size: 32
   # Use PufferLib EnvPool
   env_pool: True
   # Use PufferLib's zero copy EnvPool.
@@ -193,7 +193,7 @@ train:
   # Log global map overlay to wandb
   save_overlay: True
   # How often to log global map to wandb.
-  overlay_interval: 40
+  overlay_interval: 24
   # Use PufferLib's CPU data offloading.
   cpu_offload: False
   # Use RNN network. False is not supported
@@ -301,27 +301,27 @@ wrappers:
 rewards:
   baseline.ExplorationInteractionRewardEnv:
     reward:
-      event: 3.0 #1.0
+      event: 5.0 #1.0
       item: 2.0 #0.75
       gym_core_npc: 1.5
       npc_first_talk: 3.0
       object_first_interaction: 0.6
-      new_tile: 0.02
-      new_building: 2.5
-      new_room: 2.5
-      new_npc_textbox: 0.8
+      new_tile: 0.022
+      new_building: 3.0
+      new_room: 3.0
+      new_npc_textbox: 0.6
       script_step: 0.006
       step_penalty: -0.00001 #-0.0001
-      repeat_npc_penalty: -0.04
+      repeat_npc_penalty: -0.05
       invalid_interaction: -0.002
       start_menu_penalty: -0.035
       stuck_penalty: -0.003
-      battle_win: 0.004
+      blackout_penalty: -2.0
       # 포켓몬 센터 방문 및 리스폰 포인트 등록 유도
       pokecenter_first_entry: 3.0
       pokecenter_first_heal: 5.0
       # blackout(전체 기절) 후 부활로 HP가 올라오는 경우 제외
-      pokecenter_heal_hp: 0.02
+      pokecenter_heal_hp: 0.012
 
 # Policies to use for training.
 # Each policy is keyed by a name for the commandline.

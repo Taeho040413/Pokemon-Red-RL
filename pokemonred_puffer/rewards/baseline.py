@@ -20,8 +20,6 @@ _OUTDOOR_SURFACE_TILESETS: frozenset[int] = frozenset(
     }
 )
 
-# pokered ram/wram.asm: $00 win, $01 lose, $02 draw
-_BATTLE_RESULT_WIN = 0
 _POKECENTER_MAP_IDS: frozenset[int] = frozenset(
     {
         MapIds.VIRIDIAN_POKECENTER.value,
@@ -96,11 +94,10 @@ class ExplorationInteractionRewardEnv(BaselineRewardEnv):
         self.invalid_interaction_count = 0
         self.start_menu_open_count = 0
         self.stuck_penalty_count = 0
-        self.battle_win_count = 0
+        self.blackout_penalty_count = 0
         self.pokecenter_first_entry_count = 0
         self.pokecenter_first_heal_count = 0
         self.pokecenter_heal_hp_count = 0
-        self._prev_is_in_battle = 0
         self._same_coord_streak = 0
         self._last_coord_for_stuck: tuple[int, int, int] | None = None
 
@@ -117,13 +114,13 @@ class ExplorationInteractionRewardEnv(BaselineRewardEnv):
         self._last_blackout_map_id: int | None = None
         self._last_script_state: tuple[int, int, int] | None = None
         self._last_bag_item_counts: dict[int, int] = {}
-        # 아이템 리워드: 수량이 아니라 종류(item id)당 에피소드 내 1회 (시작 가방은 시드 시 여기 넣어 제외)
         self._item_kinds_ever_obtained: set[int] = set()
         self._pending_npc_key: tuple[int, int] | None = None
 
         self._interaction_triggered_this_step = False
         self._reward_state_seeded = False
-        self._prev_is_in_battle = int(self.read_m("wIsInBattle"))
+        # 전멸 후 센터 워프·부활 구간에서는 pokecenter/new_building 셰이핑으로 꿀빨지 않게 함
+        self._suppress_pokecenter_shaping_after_blackout = False
 
     def _reward(self, key: str) -> float:
         return float(self.reward_config.get(key, 0.0))
@@ -148,6 +145,8 @@ class ExplorationInteractionRewardEnv(BaselineRewardEnv):
         if map_id in self._seen_building_map_ids:
             return
         self._seen_building_map_ids.add(map_id)
+        if self._is_pokecenter_map(map_id) and self._suppress_pokecenter_shaping_after_blackout:
+            return
         self.new_building_count += 1
 
     def _register_new_room(self, map_id: int) -> None:
@@ -158,6 +157,8 @@ class ExplorationInteractionRewardEnv(BaselineRewardEnv):
 
     def _maybe_reward_pokecenter_entry(self, map_id: int) -> None:
         if not self._is_pokecenter_map(map_id) or map_id in self._seen_pokecenter_entries:
+            return
+        if self._suppress_pokecenter_shaping_after_blackout:
             return
         self._seen_pokecenter_entries.add(map_id)
         self.pokecenter_first_entry_count += 1
@@ -299,6 +300,10 @@ class ExplorationInteractionRewardEnv(BaselineRewardEnv):
             self.stuck_tile_map[_gy, _gx] = min(self.stuck_tile_map[_gy, _gx] + 1.0, 1e4)
 
         if prev_map_id is not None and map_id != prev_map_id:
+            if self._is_pokecenter_map(int(prev_map_id)) and not self._is_pokecenter_map(
+                int(map_id)
+            ):
+                self._suppress_pokecenter_shaping_after_blackout = False
             prev_out = self._is_outdoor_surface_tileset(prev_tileset)
             cur_out = self._is_outdoor_surface_tileset(cur_tileset)
             if not cur_out:
@@ -324,15 +329,13 @@ class ExplorationInteractionRewardEnv(BaselineRewardEnv):
         prev_blackout_count = int(self.blackout_count)
         prev_last_blackout_map_id = self._last_blackout_map_id
 
-        prev_ib = self._prev_is_in_battle
         super().run_action_on_emulator(action)
-        cur_ib = int(self.read_m("wIsInBattle"))
         current_blackout_map_id = int(self.read_m("wLastBlackoutMap"))
         self._last_blackout_map_id = current_blackout_map_id
-        if prev_ib != 0 and cur_ib == 0:
-            if int(self.read_m("wBattleResult")) == _BATTLE_RESULT_WIN:
-                self.battle_win_count += 1
-        self._prev_is_in_battle = cur_ib
+
+        if int(self.blackout_count) > prev_blackout_count:
+            self._suppress_pokecenter_shaping_after_blackout = True
+            self.blackout_penalty_count += 1
 
         # Pokémon Center healing reward:
         # - pokecenter_heal is set by AnimateHealingMachine hook
@@ -348,7 +351,12 @@ class ExplorationInteractionRewardEnv(BaselineRewardEnv):
             #     prev_last_blackout_map_id is None
             #     or current_blackout_map_id != prev_last_blackout_map_id
             # )
-            if hp_sum_before > 0 and not did_blackout and should_count_first_heal:
+            if (
+                hp_sum_before > 0
+                and not did_blackout
+                and should_count_first_heal
+                and not self._suppress_pokecenter_shaping_after_blackout
+            ):
                 healed = max(0, hp_sum_after - hp_sum_before)
                 current_map_id = int(self.read_m("wCurMap"))
                 current_tileset = int(self.read_m("wCurMapTileset"))
@@ -444,6 +452,7 @@ class ExplorationInteractionRewardEnv(BaselineRewardEnv):
 
         return {
             "event": self._reward("event") * self.update_max_event_rew(),
+            # item_count = 에피소드 동안 처음 가방에 들어온 아이템 종류 수 (시작 가방 제외)
             "item": self._reward("item") * self.item_count,
             "gym_core_npc": self._reward("gym_core_npc") * self.gym_core_npc_count,
             "npc_first_talk": self._reward("npc_first_talk") * self.first_npc_talk_count,
@@ -462,7 +471,9 @@ class ExplorationInteractionRewardEnv(BaselineRewardEnv):
             "start_menu_penalty": self._reward("start_menu_penalty")
             * self.start_menu_open_count,
             "stuck_penalty": self._reward("stuck_penalty") * self.stuck_penalty_count,
-            "battle_win": self._reward("battle_win") * self.battle_win_count,
+            # 전멸(블랙아웃) 1회당 계수(음수 권장) — 필드 난전·전멸 루프 완화
+            "blackout_penalty": self._reward("blackout_penalty")
+            * self.blackout_penalty_count,
             "pokecenter_first_entry": self._reward("pokecenter_first_entry")
             * self.pokecenter_first_entry_count,
             "pokecenter_first_heal": self._reward("pokecenter_first_heal")

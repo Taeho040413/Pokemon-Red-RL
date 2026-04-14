@@ -1,0 +1,100 @@
+_wandb:
+    value:
+        cli_version: 0.25.1
+        e:
+            gge6rdvdwqjrt4m4739sx98abfs01k4u:
+                args:
+                    - train
+                    - --track
+                cpu_count: 32
+                cpu_count_logical: 32
+                cudaVersion: "13.0"
+                disk:
+                    /:
+                        total: "943412031488"
+                        used: "827841732608"
+                executable: /home/pnudtn06/.conda/envs/pokerl310/bin/python3
+                git:
+                    commit: 49006250b461571c230319fb39b60e9b6a1230a7
+                    remote: https://github.com/Taeho040413/pokemonred_clean.git
+                gpu: NVIDIA RTX A6000
+                gpu_count: 7
+                gpu_nvidia:
+                    - architecture: Ampere
+                      cudaCores: 10752
+                      memoryTotal: "51527024640"
+                      name: NVIDIA RTX A6000
+                      uuid: GPU-74978571-c459-2f21-4b37-f6ac3b944d2b
+                    - architecture: Ampere
+                      cudaCores: 10752
+                      memoryTotal: "51527024640"
+                      name: NVIDIA RTX A6000
+                      uuid: GPU-e9142fce-7510-9960-a3f0-e44ae1d6d223
+                    - architecture: Ampere
+                      cudaCores: 10752
+                      memoryTotal: "51527024640"
+                      name: NVIDIA RTX A6000
+                      uuid: GPU-ed9e866e-554d-01da-bd05-7fee51f380f9
+                    - architecture: Ampere
+                      cudaCores: 10752
+                      memoryTotal: "51527024640"
+                      name: NVIDIA RTX A6000
+                      uuid: GPU-d1ec7fac-86c5-47b1-dd55-65fcfd9f677c
+                    - architecture: Ampere
+                      cudaCores: 10752
+                      memoryTotal: "51527024640"
+                      name: NVIDIA RTX A6000
+                      uuid: GPU-6db38b06-9dfa-2f8f-0062-2ea5d8586edc
+                    - architecture: Blackwell
+                      cudaCores: 24064
+                      memoryTotal: "102641958912"
+                      name: NVIDIA RTX PRO 6000 Blackwell Max-Q Workstation Edition
+                      uuid: GPU-006ea42a-f6e9-4b75-ee54-e7e9a5fc002e
+                    - architecture: Blackwell
+                      cudaCores: 24064
+                      memoryTotal: "102641958912"
+                      name: NVIDIA RTX PRO 6000 Blackwell Max-Q Workstation Edition
+                      uuid: GPU-983b0fe9-534b-3623-3490-f6a1c5da9e1e
+                host: devbox
+                memory:
+                    total: "540826906624"
+                os: Linux-5.15.0-78-generic-x86_64-with-glibc2.35
+                program: -m pokemonred_puffer.train
+                python: CPython 3.10.20
+                root: /home/pnudtn06/yuntaeho/pokemonred_clean
+                startedAt: "2026-04-13T06:48:12.678482Z"
+                writerId: gge6rdvdwqjrt4m4739sx98abfs01k4u
+        m: []
+        python_version: 3.10.20
+        t:
+            "1":
+                - 1
+            "2":
+                - 1
+            "3":
+                - 14
+                - 16
+                - 41
+                - 61
+            "4": 3.10.20
+            "5": 0.25.1
+            "12": 0.25.1
+            "13": linux-x86_64
+cleanrl:
+    value: '{''exp_id'': ''pokemon-red-003'', ''seed'': 1, ''torch_deterministic'': True, ''device'': ''cuda'', ''compile'': True, ''compile_mode'': ''reduce-overhead'', ''float32_matmul_precision'': ''high'', ''total_timesteps'': 10000000000, ''batch_size'': 16384, ''minibatch_size'': 1024, ''anneal_lr'': False, ''num_minibatches'': 4, ''update_epochs'': 6, ''norm_adv'': True, ''ent_coef'': 0.013, ''gae_lambda'': 0.949936199629264, ''gamma'': 0.9979900678597386, ''clip_coef'': 0.1, ''clip_vloss'': True, ''learning_rate'': 0.00019999482124740103, ''max_grad_norm'': 0.5, ''target_kl'': None, ''vf_clip_coef'': 0.1, ''vf_coef'': 0.5319333384064214, ''batch_rows'': 128, ''bptt_horizon'': 16, ''num_envs'': 256, ''num_workers'': 8, ''env_batch_size'': 32, ''env_pool'': True, ''zero_copy'': False, ''verbose'': True, ''data_dir'': ''runs'', ''save_checkpoint'': False, ''checkpoint_interval'': 500, ''resume_checkpoint'': None, ''resume_fresh'': False, ''resume_latest'': False, ''resume_latest_global'': False, ''load_optimizer_state'': False, ''save_on_first_gym'': True, ''wandb_environment_metrics'': ''reward_only'', ''save_overlay'': True, ''overlay_interval'': 40, ''cpu_offload'': False, ''use_rnn'': True, ''async_wrapper'': False, ''sqlite_wrapper'': True, ''archive_states'': False, ''swarm'': False, ''one_epoch'': [''EVENT_BEAT_CHAMPION_RIVAL''], ''required_rate'': False, ''early_stop'': {}}'
+env:
+    value: '{''state_dir'': ''pyboy_states'', ''init_state'': ''CeruleanCity'', ''init_state_path'': None, ''headless'': True, ''video_dir'': ''video'', ''action_freq'': 12, ''max_steps'': 25000, ''save_video'': False, ''fast_video'': False, ''n_record'': 10, ''perfect_ivs'': False, ''reduce_res'': True, ''two_bit'': True, ''log_frequency'': 200, ''auto_flash'': True, ''disable_wild_encounters'': False, ''disable_ai_actions'': False, ''auto_teach_cut'': False, ''auto_use_cut'': False, ''auto_use_strength'': False, ''auto_use_surf'': False, ''auto_teach_surf'': False, ''auto_teach_strength'': False, ''auto_solve_strength_puzzles'': False, ''auto_remove_all_nonuseful_items'': True, ''auto_pokeflute'': False, ''auto_next_elevator_floor'': False, ''skip_safari_zone'': False, ''infinite_safari_steps'': False, ''insert_saffron_guard_drinks'': False, ''infinite_money'': False, ''infinite_health'': False, ''use_global_map'': False, ''save_state'': True, ''animate_scripts'': False, ''exploration_inc'': 1.0, ''exploration_max'': 1.0, ''max_steps_scaling'': 0, ''map_id_scalefactor'': 9.539340019226074, ''end_episode_on_first_gym'': True, ''required_tolerance'': None, ''gb_path'': PosixPath(''/home/pnudtn06/yuntaeho/pokemonred_clean/red.gb'')}'
+policy:
+    value: '{''policy'': {''hidden_size'': 512}, ''rnn'': {''name'': ''MultiConvolutionalRNN'', ''args'': {''input_size'': 512, ''hidden_size'': 512, ''num_layers'': 1}}}'
+policy_module:
+    value: multi_convolutional.MultiConvolutionalPolicy
+reward:
+    value: '{''reward'': {''event'': 3.0, ''item'': 2.0, ''gym_core_npc'': 1.5, ''npc_first_talk'': 3.0, ''object_first_interaction'': 0.6, ''new_tile'': 0.02, ''new_building'': 2.5, ''new_room'': 2.5, ''new_npc_textbox'': 0.8, ''script_step'': 0.006, ''step_penalty'': -1e-05, ''repeat_npc_penalty'': -0.04, ''invalid_interaction'': -0.002, ''start_menu_penalty'': -0.035, ''stuck_penalty'': -0.003, ''battle_win'': 0.004, ''pokecenter_first_entry'': 3.0, ''pokecenter_first_heal'': 5.0, ''pokecenter_heal_hp'': 0.02}}'
+reward_module:
+    value: baseline.ExplorationInteractionRewardEnv
+rnn:
+    value: true
+wrappers:
+    value:
+        - '{''stream_wrapper.StreamWrapper'': {''user'': ''taeho2004''}}'
+        - '{''exploration.OnResetExplorationWrapper'': {''full_reset_frequency'': 1, ''jitter'': 0}}'

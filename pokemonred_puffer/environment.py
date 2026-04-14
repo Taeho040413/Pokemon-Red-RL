@@ -477,7 +477,6 @@ class RedGymEnv(Env):
         self.new_npc_textbox_count = 0
         self.script_step_count = 0
         self.repeat_npc_interaction_count = 0
-        self.battle_win_count = 0
 
         self.current_event_flags_set = {}
 
