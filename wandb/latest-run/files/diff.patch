@@ -1,0 +1,297 @@
+diff --git a/config.yaml b/config.yaml
+index 29bd081..006bbda 100755
+--- a/config.yaml
++++ b/config.yaml
+@@ -24,7 +24,7 @@ env:
+   # Directory to store video output.
+   video_dir: video
+   # How many ticks each environment step should take.
+-  action_freq: 24
++  action_freq: 12
+   # Maximum number of steps per mini-episode.
+   max_steps: 25000
+   # If true, save videos.
+@@ -122,15 +122,15 @@ train:
+   # The total time steps to run training for.
+   total_timesteps: 10_000_000_000
+   # The number of examples for one epoch of training.
+-  batch_size: 16384
++  batch_size: 8192
+   # The number of example to train for one batch of training.
+-  minibatch_size: 1024
++  minibatch_size: 512
+   # If true, turn on learning rate annealing.
+   anneal_lr: False
+   # Unused
+   num_minibatches: 4
+   # Number of epochs when training.
+-  update_epochs: 6
++  update_epochs: 8
+   # If true, use normalized advantage.
+   norm_adv: True
+   # Entropy coefficient. More means more random actions.
+@@ -155,12 +155,12 @@ train:
+   bptt_horizon: 16
+ 
+   # Number of environments for training.
+-  num_envs: 64
++  num_envs: 256
+   # Number of workers (processes) for training.
+   # Environments are divided evenly across workers.
+-  num_workers: 4
+-  # PufferLib: env_batch_size % (num_envs / num_workers) == 0 이어야 함 (예: 128/8=16 → 1은 불가).
+-  env_batch_size: 16
++  num_workers: 8
++  # PufferLib: env_batch_size % (num_envs / num_workers) == 0 (128/4=32 → 16 불가, 32·64·128 가능).
++  env_batch_size: 32
+   # Use PufferLib EnvPool
+   env_pool: True
+   # Use PufferLib's zero copy EnvPool.
+@@ -193,7 +193,7 @@ train:
+   # Log global map overlay to wandb
+   save_overlay: True
+   # How often to log global map to wandb.
+-  overlay_interval: 40
++  overlay_interval: 24
+   # Use PufferLib's CPU data offloading.
+   cpu_offload: False
+   # Use RNN network. False is not supported
+@@ -301,27 +301,28 @@ wrappers:
+ rewards:
+   baseline.ExplorationInteractionRewardEnv:
+     reward:
+-      event: 3.0 #1.0
++      event: 5.0 #1.0
+       item: 2.0 #0.75
+       gym_core_npc: 1.5
+       npc_first_talk: 3.0
+       object_first_interaction: 0.6
+-      new_tile: 0.02
+-      new_building: 2.5
+-      new_room: 2.5
+-      new_npc_textbox: 0.8
++      new_tile: 0.022
++      new_building: 3.0
++      new_room: 3.0
++      new_npc_textbox: 0.6
+       script_step: 0.006
+       step_penalty: -0.00001 #-0.0001
+       repeat_npc_penalty: -0.04
+       invalid_interaction: -0.002
+       start_menu_penalty: -0.035
+       stuck_penalty: -0.003
+-      battle_win: 0.004
++      battle_win: 0.005
++      blackout_penalty: -2.0
+       # 포켓몬 센터 방문 및 리스폰 포인트 등록 유도
+       pokecenter_first_entry: 3.0
+       pokecenter_first_heal: 5.0
+       # blackout(전체 기절) 후 부활로 HP가 올라오는 경우 제외
+-      pokecenter_heal_hp: 0.02
++      pokecenter_heal_hp: 0.012
+ 
+ # Policies to use for training.
+ # Each policy is keyed by a name for the commandline.
+diff --git a/pokemonred_puffer/__pycache__/cleanrl_puffer.cpython-310.pyc b/pokemonred_puffer/__pycache__/cleanrl_puffer.cpython-310.pyc
+index a3bfd86..519bb8d 100644
+Binary files a/pokemonred_puffer/__pycache__/cleanrl_puffer.cpython-310.pyc and b/pokemonred_puffer/__pycache__/cleanrl_puffer.cpython-310.pyc differ
+diff --git a/pokemonred_puffer/__pycache__/environment.cpython-310.pyc b/pokemonred_puffer/__pycache__/environment.cpython-310.pyc
+index 6ec5f51..ece9d09 100644
+Binary files a/pokemonred_puffer/__pycache__/environment.cpython-310.pyc and b/pokemonred_puffer/__pycache__/environment.cpython-310.pyc differ
+diff --git a/pokemonred_puffer/__pycache__/train.cpython-310.pyc b/pokemonred_puffer/__pycache__/train.cpython-310.pyc
+index 63615ca..9d4a080 100644
+Binary files a/pokemonred_puffer/__pycache__/train.cpython-310.pyc and b/pokemonred_puffer/__pycache__/train.cpython-310.pyc differ
+diff --git a/pokemonred_puffer/cleanrl_puffer.py b/pokemonred_puffer/cleanrl_puffer.py
+index 2ac3646..db8b2f7 100755
+--- a/pokemonred_puffer/cleanrl_puffer.py
++++ b/pokemonred_puffer/cleanrl_puffer.py
+@@ -597,6 +597,7 @@ class CleanPuffeRL:
+             )
+             self.experience.flatten_batch(advantages_np)
+ 
++        update_epochs_done = 0
+         for _ in range(self.config.update_epochs):
+             lstm_state = None
+             for mb in range(self.experience.num_minibatches):
+@@ -683,10 +684,20 @@ class CleanPuffeRL:
+                     losses.approx_kl += approx_kl.item() / self.experience.num_minibatches
+                     losses.clipfrac += clipfrac.item() / self.experience.num_minibatches
+ 
++            update_epochs_done += 1
+             if self.config.target_kl is not None:
+                 if approx_kl > self.config.target_kl:
+                     break
+ 
++        if update_epochs_done > 0:
++            inv_epochs = 1.0 / update_epochs_done
++            losses.policy_loss *= inv_epochs
++            losses.value_loss *= inv_epochs
++            losses.entropy *= inv_epochs
++            losses.old_approx_kl *= inv_epochs
++            losses.approx_kl *= inv_epochs
++            losses.clipfrac *= inv_epochs
++
+         with self.profile.train_misc:
+             if self.config.anneal_lr:
+                 frac = 1.0 - self.global_step / self.config.total_timesteps
+diff --git a/pokemonred_puffer/rewards/__pycache__/baseline.cpython-310.pyc b/pokemonred_puffer/rewards/__pycache__/baseline.cpython-310.pyc
+index 84b8d01..067d27b 100644
+Binary files a/pokemonred_puffer/rewards/__pycache__/baseline.cpython-310.pyc and b/pokemonred_puffer/rewards/__pycache__/baseline.cpython-310.pyc differ
+diff --git a/pokemonred_puffer/rewards/baseline.py b/pokemonred_puffer/rewards/baseline.py
+index fef2521..a59b1c1 100755
+--- a/pokemonred_puffer/rewards/baseline.py
++++ b/pokemonred_puffer/rewards/baseline.py
+@@ -97,6 +97,7 @@ class ExplorationInteractionRewardEnv(BaselineRewardEnv):
+         self.start_menu_open_count = 0
+         self.stuck_penalty_count = 0
+         self.battle_win_count = 0
++        self.blackout_penalty_count = 0
+         self.pokecenter_first_entry_count = 0
+         self.pokecenter_first_heal_count = 0
+         self.pokecenter_heal_hp_count = 0
+@@ -117,13 +118,14 @@ class ExplorationInteractionRewardEnv(BaselineRewardEnv):
+         self._last_blackout_map_id: int | None = None
+         self._last_script_state: tuple[int, int, int] | None = None
+         self._last_bag_item_counts: dict[int, int] = {}
+-        # 아이템 리워드: 수량이 아니라 종류(item id)당 에피소드 내 1회 (시작 가방은 시드 시 여기 넣어 제외)
+         self._item_kinds_ever_obtained: set[int] = set()
+         self._pending_npc_key: tuple[int, int] | None = None
+ 
+         self._interaction_triggered_this_step = False
+         self._reward_state_seeded = False
+         self._prev_is_in_battle = int(self.read_m("wIsInBattle"))
++        # 전멸 후 센터 워프·부활 구간에서는 pokecenter/new_building 셰이핑으로 꿀빨지 않게 함
++        self._suppress_pokecenter_shaping_after_blackout = False
+ 
+     def _reward(self, key: str) -> float:
+         return float(self.reward_config.get(key, 0.0))
+@@ -148,6 +150,8 @@ class ExplorationInteractionRewardEnv(BaselineRewardEnv):
+         if map_id in self._seen_building_map_ids:
+             return
+         self._seen_building_map_ids.add(map_id)
++        if self._is_pokecenter_map(map_id) and self._suppress_pokecenter_shaping_after_blackout:
++            return
+         self.new_building_count += 1
+ 
+     def _register_new_room(self, map_id: int) -> None:
+@@ -159,6 +163,8 @@ class ExplorationInteractionRewardEnv(BaselineRewardEnv):
+     def _maybe_reward_pokecenter_entry(self, map_id: int) -> None:
+         if not self._is_pokecenter_map(map_id) or map_id in self._seen_pokecenter_entries:
+             return
++        if self._suppress_pokecenter_shaping_after_blackout:
++            return
+         self._seen_pokecenter_entries.add(map_id)
+         self.pokecenter_first_entry_count += 1
+ 
+@@ -299,6 +305,10 @@ class ExplorationInteractionRewardEnv(BaselineRewardEnv):
+             self.stuck_tile_map[_gy, _gx] = min(self.stuck_tile_map[_gy, _gx] + 1.0, 1e4)
+ 
+         if prev_map_id is not None and map_id != prev_map_id:
++            if self._is_pokecenter_map(int(prev_map_id)) and not self._is_pokecenter_map(
++                int(map_id)
++            ):
++                self._suppress_pokecenter_shaping_after_blackout = False
+             prev_out = self._is_outdoor_surface_tileset(prev_tileset)
+             cur_out = self._is_outdoor_surface_tileset(cur_tileset)
+             if not cur_out:
+@@ -334,6 +344,10 @@ class ExplorationInteractionRewardEnv(BaselineRewardEnv):
+                 self.battle_win_count += 1
+         self._prev_is_in_battle = cur_ib
+ 
++        if int(self.blackout_count) > prev_blackout_count:
++            self._suppress_pokecenter_shaping_after_blackout = True
++            self.blackout_penalty_count += 1
++
+         # Pokémon Center healing reward:
+         # - pokecenter_heal is set by AnimateHealingMachine hook
+         # - reward proportional to total party HP gained
+@@ -348,7 +362,12 @@ class ExplorationInteractionRewardEnv(BaselineRewardEnv):
+             #     prev_last_blackout_map_id is None
+             #     or current_blackout_map_id != prev_last_blackout_map_id
+             # )
+-            if hp_sum_before > 0 and not did_blackout and should_count_first_heal:
++            if (
++                hp_sum_before > 0
++                and not did_blackout
++                and should_count_first_heal
++                and not self._suppress_pokecenter_shaping_after_blackout
++            ):
+                 healed = max(0, hp_sum_after - hp_sum_before)
+                 current_map_id = int(self.read_m("wCurMap"))
+                 current_tileset = int(self.read_m("wCurMapTileset"))
+@@ -444,6 +463,7 @@ class ExplorationInteractionRewardEnv(BaselineRewardEnv):
+ 
+         return {
+             "event": self._reward("event") * self.update_max_event_rew(),
++            # item_count = 에피소드 동안 처음 가방에 들어온 아이템 종류 수 (시작 가방 제외)
+             "item": self._reward("item") * self.item_count,
+             "gym_core_npc": self._reward("gym_core_npc") * self.gym_core_npc_count,
+             "npc_first_talk": self._reward("npc_first_talk") * self.first_npc_talk_count,
+@@ -463,6 +483,9 @@ class ExplorationInteractionRewardEnv(BaselineRewardEnv):
+             * self.start_menu_open_count,
+             "stuck_penalty": self._reward("stuck_penalty") * self.stuck_penalty_count,
+             "battle_win": self._reward("battle_win") * self.battle_win_count,
++            # 전멸(블랙아웃) 1회당 계수(음수 권장) — 필드 난전·전멸 루프 완화
++            "blackout_penalty": self._reward("blackout_penalty")
++            * self.blackout_penalty_count,
+             "pokecenter_first_entry": self._reward("pokecenter_first_entry")
+             * self.pokecenter_first_entry_count,
+             "pokecenter_first_heal": self._reward("pokecenter_first_heal")
+diff --git a/pokemonred_puffer/train.py b/pokemonred_puffer/train.py
+index 197fff6..6774c8c 100755
+--- a/pokemonred_puffer/train.py
++++ b/pokemonred_puffer/train.py
+@@ -826,9 +826,13 @@ def train(
+                 resume_trainer_state=resume_trainer_state,
+                 resume_load_log_lines=resume_load_log_lines,
+             ) as trainer:
++                eval_interval = getattr(config.train, "eval_interval", 1)
++                step = 0
+                 while not trainer.done_training():
+-                    trainer.evaluate()
++                    if step % eval_interval == 0:
++                        trainer.evaluate()
+                     trainer.train()
++                    step += 1
+ 
+             print("Done training")
+ 
+diff --git a/runs/pokemon-red-003/trainer_state.pt b/runs/pokemon-red-003/trainer_state.pt
+index 7fc5da9..a666a38 100644
+Binary files a/runs/pokemon-red-003/trainer_state.pt and b/runs/pokemon-red-003/trainer_state.pt differ
+diff --git a/wandb/debug-internal.log b/wandb/debug-internal.log
+index 6c88578..8bc9581 120000
+--- a/wandb/debug-internal.log
++++ b/wandb/debug-internal.log
+@@ -1 +1 @@
+-run-20260413_141958-5893ejmd/logs/debug-internal.log
+\ No newline at end of file
++run-20260413_175042-ewtspuuk/logs/debug-internal.log
+\ No newline at end of file
+diff --git a/wandb/debug.log b/wandb/debug.log
+index f02975e..5cd333f 120000
+--- a/wandb/debug.log
++++ b/wandb/debug.log
+@@ -1 +1 @@
+-run-20260413_141958-5893ejmd/logs/debug.log
+\ No newline at end of file
++run-20260413_175042-ewtspuuk/logs/debug.log
+\ No newline at end of file
+diff --git a/wandb/latest-run b/wandb/latest-run
+index c6deed2..4bbdf67 120000
+--- a/wandb/latest-run
++++ b/wandb/latest-run
+@@ -1 +1 @@
+-run-20260413_141958-5893ejmd
+\ No newline at end of file
++run-20260413_175042-ewtspuuk
+\ No newline at end of file
+diff --git a/wandb/wandb-resume.json b/wandb/wandb-resume.json
+index f3d5326..d7085c7 100644
+--- a/wandb/wandb-resume.json
++++ b/wandb/wandb-resume.json
+@@ -1 +1 @@
+-{"run_id": "5893ejmd"}
+\ No newline at end of file
++{"run_id": "ewtspuuk"}
+\ No newline at end of file

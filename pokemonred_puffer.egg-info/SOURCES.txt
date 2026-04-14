@@ -1,0 +1,6 @@
+pyproject.toml
+pokemonred_puffer.egg-info/PKG-INFO
+pokemonred_puffer.egg-info/SOURCES.txt
+pokemonred_puffer.egg-info/dependency_links.txt
+pokemonred_puffer.egg-info/requires.txt
+pokemonred_puffer.egg-info/top_level.txt

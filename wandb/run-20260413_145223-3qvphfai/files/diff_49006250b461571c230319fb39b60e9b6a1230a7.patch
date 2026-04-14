@@ -1,0 +1,79 @@
+diff --git a/pokemonred_puffer/__pycache__/environment.cpython-310.pyc b/pokemonred_puffer/__pycache__/environment.cpython-310.pyc
+index 6ec5f51..ece9d09 100644
+Binary files a/pokemonred_puffer/__pycache__/environment.cpython-310.pyc and b/pokemonred_puffer/__pycache__/environment.cpython-310.pyc differ
+diff --git a/pokemonred_puffer/__pycache__/train.cpython-310.pyc b/pokemonred_puffer/__pycache__/train.cpython-310.pyc
+index 63615ca..9d4a080 100644
+Binary files a/pokemonred_puffer/__pycache__/train.cpython-310.pyc and b/pokemonred_puffer/__pycache__/train.cpython-310.pyc differ
+diff --git a/pokemonred_puffer/rewards/__pycache__/baseline.cpython-310.pyc b/pokemonred_puffer/rewards/__pycache__/baseline.cpython-310.pyc
+index 84b8d01..3e90d92 100644
+Binary files a/pokemonred_puffer/rewards/__pycache__/baseline.cpython-310.pyc and b/pokemonred_puffer/rewards/__pycache__/baseline.cpython-310.pyc differ
+diff --git a/pokemonred_puffer/rewards/baseline.py b/pokemonred_puffer/rewards/baseline.py
+index fef2521..c5bdf9b 100755
+--- a/pokemonred_puffer/rewards/baseline.py
++++ b/pokemonred_puffer/rewards/baseline.py
+@@ -444,6 +444,7 @@ class ExplorationInteractionRewardEnv(BaselineRewardEnv):
+ 
+         return {
+             "event": self._reward("event") * self.update_max_event_rew(),
++            # item_count = 에피소드 동안 처음 가방에 들어온 아이템 종류 수 (시작 가방 제외)
+             "item": self._reward("item") * self.item_count,
+             "gym_core_npc": self._reward("gym_core_npc") * self.gym_core_npc_count,
+             "npc_first_talk": self._reward("npc_first_talk") * self.first_npc_talk_count,
+diff --git a/pokemonred_puffer/train.py b/pokemonred_puffer/train.py
+index 197fff6..6774c8c 100755
+--- a/pokemonred_puffer/train.py
++++ b/pokemonred_puffer/train.py
+@@ -826,9 +826,13 @@ def train(
+                 resume_trainer_state=resume_trainer_state,
+                 resume_load_log_lines=resume_load_log_lines,
+             ) as trainer:
++                eval_interval = getattr(config.train, "eval_interval", 1)
++                step = 0
+                 while not trainer.done_training():
+-                    trainer.evaluate()
++                    if step % eval_interval == 0:
++                        trainer.evaluate()
+                     trainer.train()
++                    step += 1
+ 
+             print("Done training")
+ 
+diff --git a/runs/pokemon-red-003/trainer_state.pt b/runs/pokemon-red-003/trainer_state.pt
+index 7fc5da9..411b4d7 100644
+Binary files a/runs/pokemon-red-003/trainer_state.pt and b/runs/pokemon-red-003/trainer_state.pt differ
+diff --git a/wandb/debug-internal.log b/wandb/debug-internal.log
+index 6c88578..f7339d2 120000
+--- a/wandb/debug-internal.log
++++ b/wandb/debug-internal.log
+@@ -1 +1 @@
+-run-20260413_141958-5893ejmd/logs/debug-internal.log
+\ No newline at end of file
++run-20260413_145223-3qvphfai/logs/debug-internal.log
+\ No newline at end of file
+diff --git a/wandb/debug.log b/wandb/debug.log
+index f02975e..ad1e8a4 120000
+--- a/wandb/debug.log
++++ b/wandb/debug.log
+@@ -1 +1 @@
+-run-20260413_141958-5893ejmd/logs/debug.log
+\ No newline at end of file
++run-20260413_145223-3qvphfai/logs/debug.log
+\ No newline at end of file
+diff --git a/wandb/latest-run b/wandb/latest-run
+index c6deed2..8371cae 120000
+--- a/wandb/latest-run
++++ b/wandb/latest-run
+@@ -1 +1 @@
+-run-20260413_141958-5893ejmd
+\ No newline at end of file
++run-20260413_145223-3qvphfai
+\ No newline at end of file
+diff --git a/wandb/wandb-resume.json b/wandb/wandb-resume.json
+index f3d5326..7d98517 100644
+--- a/wandb/wandb-resume.json
++++ b/wandb/wandb-resume.json
+@@ -1 +1 @@
+-{"run_id": "5893ejmd"}
+\ No newline at end of file
++{"run_id": "3qvphfai"}
+\ No newline at end of file

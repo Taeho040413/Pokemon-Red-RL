@@ -1,0 +1,31 @@
+einops
+mediapy
+numba
+numpy
+omegaconf
+opencv-python==3.4.17.63
+psutil
+pyboy>=2
+pynvml
+pufferlib @ git+https://github.com/thatguy11325/PufferLib.git@1.0
+scikit-image
+torch>=2.4
+torchvision
+typer
+tyro
+wandb
+websockets
+
+[dev]
+pokemonred_puffer[test]
+ruff
+
+[monitoring]
+nvitop
+
+[sweep]
+carbs @ git+https://github.com/kywch/carbs
+sweeps
+
+[test]
+pytest

@@ -1,0 +1,17 @@
+{"time":"2026-04-10T17:25:13.131432084+09:00","level":"INFO","msg":"wandb-core"}
+{"time":"2026-04-10T17:25:13.132901744+09:00","level":"INFO","msg":"stream: starting","core version":"0.25.1"}
+{"time":"2026-04-10T17:25:13.367121854+09:00","level":"INFO","msg":"stream: created new stream","id":"z9ha82bc"}
+{"time":"2026-04-10T17:25:13.367176604+09:00","level":"INFO","msg":"handler: started"}
+{"time":"2026-04-10T17:25:13.367285684+09:00","level":"INFO","msg":"stream: started"}
+{"time":"2026-04-10T17:25:13.367333034+09:00","level":"INFO","msg":"sender: started"}
+{"time":"2026-04-10T17:25:13.367328464+09:00","level":"INFO","msg":"writer: started","stream_id":"z9ha82bc"}
+{"time":"2026-04-10T17:25:13.376357297+09:00","level":"ERROR","msg":"api: HTTP error","status":404,"method":"POST","url":"http://localhost:8080/graphql"}
+{"time":"2026-04-10T17:25:13.376434957+09:00","level":"ERROR","msg":"runupserter: failed to init run","error":"returned error 404: {\"data\":{\"upsertBucket\":null},\"errors\":[{\"message\":\"entity TestRedRl not found during upsertBucket\",\"path\":[\"upsertBucket\"]}]}"}
+{"time":"2026-04-10T17:25:13.390322191+09:00","level":"INFO","msg":"stream: closing"}
+{"time":"2026-04-10T17:25:13.390660891+09:00","level":"ERROR","msg":"sender: uploadConfigFile: runhandle: run not yet initialized"}
+{"time":"2026-04-10T17:25:13.391163591+09:00","level":"ERROR","msg":"runfiles: runhandle: run not yet initialized"}
+{"time":"2026-04-10T17:25:13.392024151+09:00","level":"INFO","msg":"fileTransfer: Close: file transfer manager closed"}
+{"time":"2026-04-10T17:25:13.392375941+09:00","level":"INFO","msg":"handler: closed"}
+{"time":"2026-04-10T17:25:13.392421491+09:00","level":"INFO","msg":"sender: closed"}
+{"time":"2026-04-10T17:25:13.392428091+09:00","level":"INFO","msg":"stream: closed"}
+{"time":"2026-04-10T17:25:13.392999412+09:00","level":"ERROR","msg":"stream: runURL: runhandle: run not yet initialized"}

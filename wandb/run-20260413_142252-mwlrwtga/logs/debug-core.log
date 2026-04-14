@@ -1,0 +1,15 @@
+{"time":"2026-04-13T14:22:52.712563632+09:00","level":"INFO","msg":"main: starting server","port-filename":"/tmp/tmp29pzhsr6/port-2837938.txt","pid":2837938,"log-level":0,"disable-analytics":false,"shutdown-on-parent-exit":false,"enable-dcgm-profiling":false}
+{"time":"2026-04-13T14:22:52.713651333+09:00","level":"INFO","msg":"server: accepting connections","addr":{"Name":"/tmp/wandb-2837938-2838086-3387397533/socket","Net":"unix"}}
+{"time":"2026-04-13T14:22:52.713754403+09:00","level":"INFO","msg":"server: will exit if parent process dies","ppid":2837938}
+{"time":"2026-04-13T14:22:52.87234381+09:00","level":"INFO","msg":"connection: ManageConnectionData: new connection created","id":"1(@)"}
+{"time":"2026-04-13T14:22:52.877765502+09:00","level":"INFO","msg":"handleInformInit: received","streamId":"mwlrwtga","id":"1(@)"}
+{"time":"2026-04-13T14:22:53.356279504+09:00","level":"INFO","msg":"handleInformInit: stream started","streamId":"mwlrwtga","id":"1(@)"}
+{"time":"2026-04-13T14:22:59.228705794+09:00","level":"INFO","msg":"connection: cancelling request","id":"1(@)","requestId":"d8v85j8iruhe"}
+{"time":"2026-04-13T14:51:51.969270011+09:00","level":"INFO","msg":"handleInformTeardown: server teardown initiated","id":"1(@)"}
+{"time":"2026-04-13T14:51:51.969373721+09:00","level":"INFO","msg":"server is shutting down"}
+{"time":"2026-04-13T14:51:51.969367061+09:00","level":"INFO","msg":"connection: closing","id":"1(@)"}
+{"time":"2026-04-13T14:51:51.969476091+09:00","level":"INFO","msg":"connection: closed successfully","id":"1(@)"}
+{"time":"2026-04-13T14:51:51.969552691+09:00","level":"INFO","msg":"server: listener closed","addr":{"Name":"/tmp/wandb-2837938-2838086-3387397533/socket","Net":"unix"}}
+{"time":"2026-04-13T14:51:53.993401094+09:00","level":"INFO","msg":"handleInformTeardown: server shutdown complete","id":"1(@)"}
+{"time":"2026-04-13T14:51:53.993461134+09:00","level":"INFO","msg":"connection: ManageConnectionData: connection closed","id":"1(@)"}
+{"time":"2026-04-13T14:51:53.993477584+09:00","level":"INFO","msg":"server is closed"}

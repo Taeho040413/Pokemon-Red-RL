@@ -1,0 +1,51 @@
+diff --git a/pokemonred_puffer/rewards/__pycache__/baseline.cpython-310.pyc b/pokemonred_puffer/rewards/__pycache__/baseline.cpython-310.pyc
+index 84b8d01..4e641fd 100644
+Binary files a/pokemonred_puffer/rewards/__pycache__/baseline.cpython-310.pyc and b/pokemonred_puffer/rewards/__pycache__/baseline.cpython-310.pyc differ
+diff --git a/pokemonred_puffer/rewards/baseline.py b/pokemonred_puffer/rewards/baseline.py
+index fef2521..c5bdf9b 100755
+--- a/pokemonred_puffer/rewards/baseline.py
++++ b/pokemonred_puffer/rewards/baseline.py
+@@ -444,6 +444,7 @@ class ExplorationInteractionRewardEnv(BaselineRewardEnv):
+ 
+         return {
+             "event": self._reward("event") * self.update_max_event_rew(),
++            # item_count = 에피소드 동안 처음 가방에 들어온 아이템 종류 수 (시작 가방 제외)
+             "item": self._reward("item") * self.item_count,
+             "gym_core_npc": self._reward("gym_core_npc") * self.gym_core_npc_count,
+             "npc_first_talk": self._reward("npc_first_talk") * self.first_npc_talk_count,
+diff --git a/wandb/debug-internal.log b/wandb/debug-internal.log
+index 6c88578..74c4eaf 120000
+--- a/wandb/debug-internal.log
++++ b/wandb/debug-internal.log
+@@ -1 +1 @@
+-run-20260413_141958-5893ejmd/logs/debug-internal.log
+\ No newline at end of file
++run-20260413_142252-mwlrwtga/logs/debug-internal.log
+\ No newline at end of file
+diff --git a/wandb/debug.log b/wandb/debug.log
+index f02975e..c35e517 120000
+--- a/wandb/debug.log
++++ b/wandb/debug.log
+@@ -1 +1 @@
+-run-20260413_141958-5893ejmd/logs/debug.log
+\ No newline at end of file
++run-20260413_142252-mwlrwtga/logs/debug.log
+\ No newline at end of file
+diff --git a/wandb/latest-run b/wandb/latest-run
+index c6deed2..148f4e2 120000
+--- a/wandb/latest-run
++++ b/wandb/latest-run
+@@ -1 +1 @@
+-run-20260413_141958-5893ejmd
+\ No newline at end of file
++run-20260413_142252-mwlrwtga
+\ No newline at end of file
+diff --git a/wandb/wandb-resume.json b/wandb/wandb-resume.json
+index f3d5326..df04d97 100644
+--- a/wandb/wandb-resume.json
++++ b/wandb/wandb-resume.json
+@@ -1 +1 @@
+-{"run_id": "5893ejmd"}
+\ No newline at end of file
++{"run_id": "mwlrwtga"}
+\ No newline at end of file

@@ -1,0 +1,17 @@
+{"time":"2026-04-13T15:11:47.861234015+09:00","level":"INFO","msg":"wandb-core"}
+{"time":"2026-04-13T15:11:47.862285305+09:00","level":"INFO","msg":"stream: starting","core version":"0.25.1"}
+{"time":"2026-04-13T15:11:48.555881872+09:00","level":"INFO","msg":"stream: created new stream","id":"porzio6z"}
+{"time":"2026-04-13T15:11:48.555982142+09:00","level":"INFO","msg":"handler: started"}
+{"time":"2026-04-13T15:11:48.556179842+09:00","level":"INFO","msg":"stream: started"}
+{"time":"2026-04-13T15:11:48.556252262+09:00","level":"INFO","msg":"writer: started","stream_id":"porzio6z"}
+{"time":"2026-04-13T15:11:48.556280492+09:00","level":"INFO","msg":"sender: started"}
+{"time":"2026-04-13T15:11:49.294024242+09:00","level":"WARN","msg":"handleCodeSave: program relative path is empty"}
+{"time":"2026-04-13T15:11:49.541518005+09:00","level":"INFO","msg":"filestream: sending request","total_files":1,"console_offset":0,"console_lines":1}
+{"time":"2026-04-13T15:11:49.558059+09:00","level":"INFO","msg":"stream: closing"}
+{"time":"2026-04-13T15:11:49.882868327+09:00","level":"INFO","msg":"filestream: request sent","status":"200 OK"}
+{"time":"2026-04-13T15:11:50.445693795+09:00","level":"INFO","msg":"fileTransfer: Close: file transfer manager closed"}
+{"time":"2026-04-13T15:11:50.446043085+09:00","level":"INFO","msg":"filestream: sending request","total_files":2,"console_offset":1,"console_lines":61,"uploaded_len":7,"complete":true,"exit_code":1}
+{"time":"2026-04-13T15:11:50.786191336+09:00","level":"INFO","msg":"filestream: request sent","status":"200 OK"}
+{"time":"2026-04-13T15:11:50.786401616+09:00","level":"INFO","msg":"handler: closed"}
+{"time":"2026-04-13T15:11:50.786519606+09:00","level":"INFO","msg":"sender: closed"}
+{"time":"2026-04-13T15:11:50.786532166+09:00","level":"INFO","msg":"stream: closed"}

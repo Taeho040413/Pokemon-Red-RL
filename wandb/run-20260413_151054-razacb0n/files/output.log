@@ -1,0 +1,62 @@
+[resume] 최신 체크포인트 자동 선택: /home/pnudtn06/yuntaeho/pokemonred_clean/runs/pokemon-red-003/model_000062.pt
+[resume] 로드할 모델 파일: /home/pnudtn06/yuntaeho/pokemonred_clean/runs/pokemon-red-003/model_000062.pt
+Traceback (most recent call last):
+  File "/home/pnudtn06/.conda/envs/pokerl310/lib/python3.10/runpy.py", line 196, in _run_module_as_main
+    return _run_code(code, main_globals, None,
+  File "/home/pnudtn06/.conda/envs/pokerl310/lib/python3.10/runpy.py", line 86, in _run_code
+    exec(code, run_globals)
+  File "/home/pnudtn06/yuntaeho/pokemonred_clean/pokemonred_puffer/train.py", line 841, in <module>
+    app()
+  File "/home/pnudtn06/.conda/envs/pokerl310/lib/python3.10/site-packages/typer/main.py", line 1152, in __call__
+    raise e
+  File "/home/pnudtn06/.conda/envs/pokerl310/lib/python3.10/site-packages/typer/main.py", line 1135, in __call__
+    return get_command(self)(*args, **kwargs)
+  File "/home/pnudtn06/.conda/envs/pokerl310/lib/python3.10/site-packages/click/core.py", line 1485, in __call__
+    return self.main(*args, **kwargs)
+  File "/home/pnudtn06/.conda/envs/pokerl310/lib/python3.10/site-packages/typer/core.py", line 795, in main
+    return _main(
+  File "/home/pnudtn06/.conda/envs/pokerl310/lib/python3.10/site-packages/typer/core.py", line 188, in _main
+    rv = self.invoke(ctx)
+  File "/home/pnudtn06/.conda/envs/pokerl310/lib/python3.10/site-packages/click/core.py", line 1873, in invoke
+    return _process_result(sub_ctx.command.invoke(sub_ctx))
+  File "/home/pnudtn06/.conda/envs/pokerl310/lib/python3.10/site-packages/click/core.py", line 1269, in invoke
+    return ctx.invoke(self.callback, **ctx.params)
+  File "/home/pnudtn06/.conda/envs/pokerl310/lib/python3.10/site-packages/click/core.py", line 824, in invoke
+    return callback(*args, **kwargs)
+  File "/home/pnudtn06/.conda/envs/pokerl310/lib/python3.10/site-packages/typer/main.py", line 1514, in wrapper
+    return callback(**use_params)
+  File "/home/pnudtn06/yuntaeho/pokemonred_clean/pokemonred_puffer/train.py", line 774, in train
+    vecenv = pufferlib.vector.make(
+  File "/home/pnudtn06/.conda/envs/pokerl310/lib/python3.10/site-packages/pufferlib/vector.py", line 598, in make
+    raise APIUsageError(
+pufferlib.exceptions.APIUsageError: batch_size must be divisible by (num_envs / num_workers)
+Traceback (most recent call last):
+  File "/home/pnudtn06/.conda/envs/pokerl310/lib/python3.10/runpy.py", line 196, in _run_module_as_main
+    return _run_code(code, main_globals, None,
+  File "/home/pnudtn06/.conda/envs/pokerl310/lib/python3.10/runpy.py", line 86, in _run_code
+    exec(code, run_globals)
+  File "/home/pnudtn06/yuntaeho/pokemonred_clean/pokemonred_puffer/train.py", line 841, in <module>
+    app()
+  File "/home/pnudtn06/.conda/envs/pokerl310/lib/python3.10/site-packages/typer/main.py", line 1152, in __call__
+    raise e
+  File "/home/pnudtn06/.conda/envs/pokerl310/lib/python3.10/site-packages/typer/main.py", line 1135, in __call__
+    return get_command(self)(*args, **kwargs)
+  File "/home/pnudtn06/.conda/envs/pokerl310/lib/python3.10/site-packages/click/core.py", line 1485, in __call__
+    return self.main(*args, **kwargs)
+  File "/home/pnudtn06/.conda/envs/pokerl310/lib/python3.10/site-packages/typer/core.py", line 795, in main
+    return _main(
+  File "/home/pnudtn06/.conda/envs/pokerl310/lib/python3.10/site-packages/typer/core.py", line 188, in _main
+    rv = self.invoke(ctx)
+  File "/home/pnudtn06/.conda/envs/pokerl310/lib/python3.10/site-packages/click/core.py", line 1873, in invoke
+    return _process_result(sub_ctx.command.invoke(sub_ctx))
+  File "/home/pnudtn06/.conda/envs/pokerl310/lib/python3.10/site-packages/click/core.py", line 1269, in invoke
+    return ctx.invoke(self.callback, **ctx.params)
+  File "/home/pnudtn06/.conda/envs/pokerl310/lib/python3.10/site-packages/click/core.py", line 824, in invoke
+    return callback(*args, **kwargs)
+  File "/home/pnudtn06/.conda/envs/pokerl310/lib/python3.10/site-packages/typer/main.py", line 1514, in wrapper
+    return callback(**use_params)
+  File "/home/pnudtn06/yuntaeho/pokemonred_clean/pokemonred_puffer/train.py", line 774, in train
+    vecenv = pufferlib.vector.make(
+  File "/home/pnudtn06/.conda/envs/pokerl310/lib/python3.10/site-packages/pufferlib/vector.py", line 598, in make
+    raise APIUsageError(
+pufferlib.exceptions.APIUsageError: batch_size must be divisible by (num_envs / num_workers)
