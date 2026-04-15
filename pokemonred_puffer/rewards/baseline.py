@@ -94,6 +94,8 @@ class ExplorationInteractionRewardEnv(BaselineRewardEnv):
         self.invalid_interaction_count = 0
         self.start_menu_open_count = 0
         self.stuck_penalty_count = 0
+        # 야생전 진입(wIsInBattle: 0 -> 1) 1회당 패널티
+        self.wild_encounter_count = 0
         # 파티 슬롯별 HP가 >0 → 0(기절) 1회당, 야생전에서만 누적
         self.death_count = 0
         self.trainer_battle_win_count = 0
@@ -365,6 +367,10 @@ class ExplorationInteractionRewardEnv(BaselineRewardEnv):
         ):
             self.trainer_battle_win_count += 1
 
+        # 야생전 조우 진입(필드 0 -> 야생전 1)만 카운트
+        if prev_is_in_battle == 0 and int(self.read_m("wIsInBattle")) == 1:
+            self.wild_encounter_count += 1
+
         # Pokémon Center healing reward:
         # - pokecenter_heal is set by AnimateHealingMachine hook
         # - reward proportional to total party HP gained
@@ -499,6 +505,8 @@ class ExplorationInteractionRewardEnv(BaselineRewardEnv):
             "start_menu_penalty": self._reward("start_menu_penalty")
             * self.start_menu_open_count,
             "stuck_penalty": self._reward("stuck_penalty") * self.stuck_penalty_count,
+            "wild_encounter_penalty": self._reward("wild_encounter_penalty")
+            * self.wild_encounter_count,
             "trainer_battle_win": self._reward("trainer_battle_win")
             * self.trainer_battle_win_count,
             "death": self._reward("death") * self.death_count,
