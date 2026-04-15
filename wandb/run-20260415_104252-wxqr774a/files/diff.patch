@@ -1,0 +1,179 @@
+diff --git a/config.yaml b/config.yaml
+index a98c452..070f53b 100755
+--- a/config.yaml
++++ b/config.yaml
+@@ -311,17 +311,18 @@ rewards:
+       new_room: 3.0
+       new_npc_textbox: 0.6
+       script_step: 0.006
+-      step_penalty: -0.00001 #-0.0001
++      step_penalty: -0.000015 #-0.0001
+       repeat_npc_penalty: -0.05
+       invalid_interaction: -0.002
+       start_menu_penalty: -0.035
+       stuck_penalty: -0.003
++      # 트레이너전 패배 블랙아웃은 코드에서 제외(야생 등만 계수)
+       blackout_penalty: -2.0
+       # 포켓몬 센터 방문 및 리스폰 포인트 등록 유도
+       pokecenter_first_entry: 3.0
+       pokecenter_first_heal: 5.0
+       # blackout(전체 기절) 후 부활로 HP가 올라오는 경우 제외
+-      pokecenter_heal_hp: 0.012
++      pokecenter_heal_hp: 0.008
+ 
+ # Policies to use for training.
+ # Each policy is keyed by a name for the commandline.
+diff --git a/pokemonred_puffer/__pycache__/__init__.cpython-310.pyc b/pokemonred_puffer/__pycache__/__init__.cpython-310.pyc
+index 291e571..9b78dd1 100644
+Binary files a/pokemonred_puffer/__pycache__/__init__.cpython-310.pyc and b/pokemonred_puffer/__pycache__/__init__.cpython-310.pyc differ
+diff --git a/pokemonred_puffer/__pycache__/cleanrl_puffer.cpython-310.pyc b/pokemonred_puffer/__pycache__/cleanrl_puffer.cpython-310.pyc
+index 519bb8d..a22a269 100644
+Binary files a/pokemonred_puffer/__pycache__/cleanrl_puffer.cpython-310.pyc and b/pokemonred_puffer/__pycache__/cleanrl_puffer.cpython-310.pyc differ
+diff --git a/pokemonred_puffer/__pycache__/environment.cpython-310.pyc b/pokemonred_puffer/__pycache__/environment.cpython-310.pyc
+index ece9d09..a13a734 100644
+Binary files a/pokemonred_puffer/__pycache__/environment.cpython-310.pyc and b/pokemonred_puffer/__pycache__/environment.cpython-310.pyc differ
+diff --git a/pokemonred_puffer/__pycache__/eval.cpython-310.pyc b/pokemonred_puffer/__pycache__/eval.cpython-310.pyc
+index c0a9dac..1b06de5 100644
+Binary files a/pokemonred_puffer/__pycache__/eval.cpython-310.pyc and b/pokemonred_puffer/__pycache__/eval.cpython-310.pyc differ
+diff --git a/pokemonred_puffer/__pycache__/global_map.cpython-310.pyc b/pokemonred_puffer/__pycache__/global_map.cpython-310.pyc
+index 67ade1c..3fed4de 100644
+Binary files a/pokemonred_puffer/__pycache__/global_map.cpython-310.pyc and b/pokemonred_puffer/__pycache__/global_map.cpython-310.pyc differ
+diff --git a/pokemonred_puffer/__pycache__/profile.cpython-310.pyc b/pokemonred_puffer/__pycache__/profile.cpython-310.pyc
+index d0e8b7f..4479eaf 100644
+Binary files a/pokemonred_puffer/__pycache__/profile.cpython-310.pyc and b/pokemonred_puffer/__pycache__/profile.cpython-310.pyc differ
+diff --git a/pokemonred_puffer/__pycache__/train.cpython-310.pyc b/pokemonred_puffer/__pycache__/train.cpython-310.pyc
+index 9d4a080..26c72fd 100644
+Binary files a/pokemonred_puffer/__pycache__/train.cpython-310.pyc and b/pokemonred_puffer/__pycache__/train.cpython-310.pyc differ
+diff --git a/pokemonred_puffer/data/__pycache__/elevators.cpython-310.pyc b/pokemonred_puffer/data/__pycache__/elevators.cpython-310.pyc
+index 49adeaf..29b9c2e 100644
+Binary files a/pokemonred_puffer/data/__pycache__/elevators.cpython-310.pyc and b/pokemonred_puffer/data/__pycache__/elevators.cpython-310.pyc differ
+diff --git a/pokemonred_puffer/data/__pycache__/events.cpython-310.pyc b/pokemonred_puffer/data/__pycache__/events.cpython-310.pyc
+index efafd19..87eef86 100644
+Binary files a/pokemonred_puffer/data/__pycache__/events.cpython-310.pyc and b/pokemonred_puffer/data/__pycache__/events.cpython-310.pyc differ
+diff --git a/pokemonred_puffer/data/__pycache__/field_moves.cpython-310.pyc b/pokemonred_puffer/data/__pycache__/field_moves.cpython-310.pyc
+index db30c69..464866d 100644
+Binary files a/pokemonred_puffer/data/__pycache__/field_moves.cpython-310.pyc and b/pokemonred_puffer/data/__pycache__/field_moves.cpython-310.pyc differ
+diff --git a/pokemonred_puffer/data/__pycache__/flags.cpython-310.pyc b/pokemonred_puffer/data/__pycache__/flags.cpython-310.pyc
+index a0a4991..59b7b62 100644
+Binary files a/pokemonred_puffer/data/__pycache__/flags.cpython-310.pyc and b/pokemonred_puffer/data/__pycache__/flags.cpython-310.pyc differ
+diff --git a/pokemonred_puffer/data/__pycache__/items.cpython-310.pyc b/pokemonred_puffer/data/__pycache__/items.cpython-310.pyc
+index 17e6557..73e04f6 100644
+Binary files a/pokemonred_puffer/data/__pycache__/items.cpython-310.pyc and b/pokemonred_puffer/data/__pycache__/items.cpython-310.pyc differ
+diff --git a/pokemonred_puffer/data/__pycache__/map.cpython-310.pyc b/pokemonred_puffer/data/__pycache__/map.cpython-310.pyc
+index 956a465..9f57519 100644
+Binary files a/pokemonred_puffer/data/__pycache__/map.cpython-310.pyc and b/pokemonred_puffer/data/__pycache__/map.cpython-310.pyc differ
+diff --git a/pokemonred_puffer/data/__pycache__/missable_objects.cpython-310.pyc b/pokemonred_puffer/data/__pycache__/missable_objects.cpython-310.pyc
+index d4d7c87..2ea20b7 100644
+Binary files a/pokemonred_puffer/data/__pycache__/missable_objects.cpython-310.pyc and b/pokemonred_puffer/data/__pycache__/missable_objects.cpython-310.pyc differ
+diff --git a/pokemonred_puffer/data/__pycache__/moves.cpython-310.pyc b/pokemonred_puffer/data/__pycache__/moves.cpython-310.pyc
+index d4bf3ef..64cbe8a 100644
+Binary files a/pokemonred_puffer/data/__pycache__/moves.cpython-310.pyc and b/pokemonred_puffer/data/__pycache__/moves.cpython-310.pyc differ
+diff --git a/pokemonred_puffer/data/__pycache__/party.cpython-310.pyc b/pokemonred_puffer/data/__pycache__/party.cpython-310.pyc
+index 413be94..793e51f 100644
+Binary files a/pokemonred_puffer/data/__pycache__/party.cpython-310.pyc and b/pokemonred_puffer/data/__pycache__/party.cpython-310.pyc differ
+diff --git a/pokemonred_puffer/data/__pycache__/species.cpython-310.pyc b/pokemonred_puffer/data/__pycache__/species.cpython-310.pyc
+index c57d8b2..45d627e 100644
+Binary files a/pokemonred_puffer/data/__pycache__/species.cpython-310.pyc and b/pokemonred_puffer/data/__pycache__/species.cpython-310.pyc differ
+diff --git a/pokemonred_puffer/data/__pycache__/strength_puzzles.cpython-310.pyc b/pokemonred_puffer/data/__pycache__/strength_puzzles.cpython-310.pyc
+index d37f482..9bcab0c 100644
+Binary files a/pokemonred_puffer/data/__pycache__/strength_puzzles.cpython-310.pyc and b/pokemonred_puffer/data/__pycache__/strength_puzzles.cpython-310.pyc differ
+diff --git a/pokemonred_puffer/data/__pycache__/tilesets.cpython-310.pyc b/pokemonred_puffer/data/__pycache__/tilesets.cpython-310.pyc
+index 37c3057..e206d36 100644
+Binary files a/pokemonred_puffer/data/__pycache__/tilesets.cpython-310.pyc and b/pokemonred_puffer/data/__pycache__/tilesets.cpython-310.pyc differ
+diff --git a/pokemonred_puffer/data/__pycache__/tm_hm.cpython-310.pyc b/pokemonred_puffer/data/__pycache__/tm_hm.cpython-310.pyc
+index 174d8b7..067927c 100644
+Binary files a/pokemonred_puffer/data/__pycache__/tm_hm.cpython-310.pyc and b/pokemonred_puffer/data/__pycache__/tm_hm.cpython-310.pyc differ
+diff --git a/pokemonred_puffer/environment.py b/pokemonred_puffer/environment.py
+index e165ba5..9611d84 100755
+--- a/pokemonred_puffer/environment.py
++++ b/pokemonred_puffer/environment.py
+@@ -466,6 +466,8 @@ class RedGymEnv(Env):
+         self.step_count = 0
+         self.blackout_check = 0
+         self.blackout_count = 0
++        # pokered: wIsInBattle 1=야생, 2=트레이너 — HandleBlackOut 시점에만 의미 있음
++        self._blackout_last_from_trainer_battle = False
+         self.use_surf = 0
+         self.first_item_count = 0
+         self.gym_core_npc_count = 0
+@@ -1464,6 +1466,8 @@ class RedGymEnv(Env):
+         self.seen_action_bag_menu = 1
+ 
+     def blackout_hook(self, *args, **kwargs):
++        # 전멸 직전 배틀 종류(야생 1 / 트레이너 2). 보상에서 트레이너 패배 블랙아웃만 예외 처리.
++        self._blackout_last_from_trainer_battle = int(self.read_m("wIsInBattle")) == 2
+         self.blackout_count += 1
+ 
+     def blackout_update_hook(self, *args, **kwargs):
+diff --git a/pokemonred_puffer/rewards/__pycache__/__init__.cpython-310.pyc b/pokemonred_puffer/rewards/__pycache__/__init__.cpython-310.pyc
+index c0a5f0a..eb94422 100644
+Binary files a/pokemonred_puffer/rewards/__pycache__/__init__.cpython-310.pyc and b/pokemonred_puffer/rewards/__pycache__/__init__.cpython-310.pyc differ
+diff --git a/pokemonred_puffer/rewards/__pycache__/baseline.cpython-310.pyc b/pokemonred_puffer/rewards/__pycache__/baseline.cpython-310.pyc
+index 067d27b..1ec569b 100644
+Binary files a/pokemonred_puffer/rewards/__pycache__/baseline.cpython-310.pyc and b/pokemonred_puffer/rewards/__pycache__/baseline.cpython-310.pyc differ
+diff --git a/pokemonred_puffer/rewards/baseline.py b/pokemonred_puffer/rewards/baseline.py
+index c39a1bf..7c6f2f3 100755
+--- a/pokemonred_puffer/rewards/baseline.py
++++ b/pokemonred_puffer/rewards/baseline.py
+@@ -335,7 +335,9 @@ class ExplorationInteractionRewardEnv(BaselineRewardEnv):
+ 
+         if int(self.blackout_count) > prev_blackout_count:
+             self._suppress_pokecenter_shaping_after_blackout = True
+-            self.blackout_penalty_count += 1
++            # 트레이너 배틀 패배로 인한 블랙아웃은 blackout_penalty 미적용 (야생/기타만 누적)
++            if not self._blackout_last_from_trainer_battle:
++                self.blackout_penalty_count += 1
+ 
+         # Pokémon Center healing reward:
+         # - pokecenter_heal is set by AnimateHealingMachine hook
+diff --git a/pokemonred_puffer/wrappers/__pycache__/__init__.cpython-310.pyc b/pokemonred_puffer/wrappers/__pycache__/__init__.cpython-310.pyc
+index b47efad..5bb8d46 100644
+Binary files a/pokemonred_puffer/wrappers/__pycache__/__init__.cpython-310.pyc and b/pokemonred_puffer/wrappers/__pycache__/__init__.cpython-310.pyc differ
+diff --git a/pokemonred_puffer/wrappers/__pycache__/async_io.cpython-310.pyc b/pokemonred_puffer/wrappers/__pycache__/async_io.cpython-310.pyc
+index 74f4587..da60e46 100644
+Binary files a/pokemonred_puffer/wrappers/__pycache__/async_io.cpython-310.pyc and b/pokemonred_puffer/wrappers/__pycache__/async_io.cpython-310.pyc differ
+diff --git a/pokemonred_puffer/wrappers/__pycache__/exploration.cpython-310.pyc b/pokemonred_puffer/wrappers/__pycache__/exploration.cpython-310.pyc
+index 7bedb11..eb8f6ad 100644
+Binary files a/pokemonred_puffer/wrappers/__pycache__/exploration.cpython-310.pyc and b/pokemonred_puffer/wrappers/__pycache__/exploration.cpython-310.pyc differ
+diff --git a/pokemonred_puffer/wrappers/__pycache__/sqlite.cpython-310.pyc b/pokemonred_puffer/wrappers/__pycache__/sqlite.cpython-310.pyc
+index 3cbbd45..8d100df 100644
+Binary files a/pokemonred_puffer/wrappers/__pycache__/sqlite.cpython-310.pyc and b/pokemonred_puffer/wrappers/__pycache__/sqlite.cpython-310.pyc differ
+diff --git a/pokemonred_puffer/wrappers/__pycache__/stream_wrapper.cpython-310.pyc b/pokemonred_puffer/wrappers/__pycache__/stream_wrapper.cpython-310.pyc
+index cfd5cc4..43eaed3 100644
+Binary files a/pokemonred_puffer/wrappers/__pycache__/stream_wrapper.cpython-310.pyc and b/pokemonred_puffer/wrappers/__pycache__/stream_wrapper.cpython-310.pyc differ
+diff --git a/wandb/debug-internal.log b/wandb/debug-internal.log
+index 8bc9581..b63a545 120000
+--- a/wandb/debug-internal.log
++++ b/wandb/debug-internal.log
+@@ -1 +1 @@
+-run-20260413_175042-ewtspuuk/logs/debug-internal.log
+\ No newline at end of file
++run-20260415_104252-wxqr774a/logs/debug-internal.log
+\ No newline at end of file
+diff --git a/wandb/debug.log b/wandb/debug.log
+index 5cd333f..3c6386f 120000
+--- a/wandb/debug.log
++++ b/wandb/debug.log
+@@ -1 +1 @@
+-run-20260413_175042-ewtspuuk/logs/debug.log
+\ No newline at end of file
++run-20260415_104252-wxqr774a/logs/debug.log
+\ No newline at end of file
+diff --git a/wandb/latest-run b/wandb/latest-run
+index 4bbdf67..6de3582 120000
+--- a/wandb/latest-run
++++ b/wandb/latest-run
+@@ -1 +1 @@
+-run-20260413_175042-ewtspuuk
+\ No newline at end of file
++run-20260415_104252-wxqr774a
+\ No newline at end of file
+diff --git a/wandb/wandb-resume.json b/wandb/wandb-resume.json
+index d7085c7..0ad3f83 100644
+--- a/wandb/wandb-resume.json
++++ b/wandb/wandb-resume.json
+@@ -1 +1 @@
+-{"run_id": "ewtspuuk"}
+\ No newline at end of file
++{"run_id": "wxqr774a"}
+\ No newline at end of file

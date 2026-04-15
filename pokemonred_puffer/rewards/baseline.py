@@ -94,7 +94,9 @@ class ExplorationInteractionRewardEnv(BaselineRewardEnv):
         self.invalid_interaction_count = 0
         self.start_menu_open_count = 0
         self.stuck_penalty_count = 0
-        self.blackout_penalty_count = 0
+        # 파티 슬롯별 HP가 >0 → 0(기절) 1회당, 야생전에서만 누적
+        self.death_count = 0
+        self.trainer_battle_win_count = 0
         self.pokecenter_first_entry_count = 0
         self.pokecenter_first_heal_count = 0
         self.pokecenter_heal_hp_count = 0
@@ -328,6 +330,11 @@ class ExplorationInteractionRewardEnv(BaselineRewardEnv):
         prev_pokecenter_heal = int(self.pokecenter_heal)
         prev_blackout_count = int(self.blackout_count)
         prev_last_blackout_map_id = self._last_blackout_map_id
+        prev_is_in_battle = int(self.read_m("wIsInBattle"))
+        party_n = max(0, min(int(self.read_m("wPartyCount")), 6))
+        hp_before_slots = [
+            int(self.read_short(f"wPartyMon{i+1}HP")) for i in range(party_n)
+        ]
 
         super().run_action_on_emulator(action)
         current_blackout_map_id = int(self.read_m("wLastBlackoutMap"))
@@ -335,7 +342,28 @@ class ExplorationInteractionRewardEnv(BaselineRewardEnv):
 
         if int(self.blackout_count) > prev_blackout_count:
             self._suppress_pokecenter_shaping_after_blackout = True
-            self.blackout_penalty_count += 1
+
+        # 개체 기절(슬롯 HP >0 → 0): 야생전(wIsInBattle==1)만 death_count. 트레이너전(2)은 무패널티.
+        # 마지막 기절 후 배틀 플래그가 이미 0이면 prev_is_in_battle으로 복원.
+        post_is_in_battle = int(self.read_m("wIsInBattle"))
+        battle_ctx = (
+            post_is_in_battle
+            if post_is_in_battle in (1, 2)
+            else prev_is_in_battle
+        )
+        party_n2 = max(0, min(int(self.read_m("wPartyCount")), 6))
+        for i in range(min(party_n, party_n2)):
+            hp_after_slot = int(self.read_short(f"wPartyMon{i+1}HP"))
+            if hp_before_slots[i] > 0 and hp_after_slot == 0 and battle_ctx == 1:
+                self.death_count += 1
+
+        # 트레이너전 승리만 보상 (wIsInBattle 2→0, 동일 스텝 블랙아웃 없음). 야생 승리/도주는 제외.
+        if (
+            prev_is_in_battle == 2
+            and int(self.read_m("wIsInBattle")) == 0
+            and int(self.blackout_count) == prev_blackout_count
+        ):
+            self.trainer_battle_win_count += 1
 
         # Pokémon Center healing reward:
         # - pokecenter_heal is set by AnimateHealingMachine hook
@@ -471,9 +499,9 @@ class ExplorationInteractionRewardEnv(BaselineRewardEnv):
             "start_menu_penalty": self._reward("start_menu_penalty")
             * self.start_menu_open_count,
             "stuck_penalty": self._reward("stuck_penalty") * self.stuck_penalty_count,
-            # 전멸(블랙아웃) 1회당 계수(음수 권장) — 필드 난전·전멸 루프 완화
-            "blackout_penalty": self._reward("blackout_penalty")
-            * self.blackout_penalty_count,
+            "trainer_battle_win": self._reward("trainer_battle_win")
+            * self.trainer_battle_win_count,
+            "death": self._reward("death") * self.death_count,
             "pokecenter_first_entry": self._reward("pokecenter_first_entry")
             * self.pokecenter_first_entry_count,
             "pokecenter_first_heal": self._reward("pokecenter_first_heal")

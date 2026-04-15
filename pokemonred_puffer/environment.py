@@ -466,6 +466,8 @@ class RedGymEnv(Env):
         self.step_count = 0
         self.blackout_check = 0
         self.blackout_count = 0
+        # pokered: wIsInBattle 1=야생, 2=트레이너 — HandleBlackOut 시점에만 의미 있음
+        self._blackout_last_from_trainer_battle = False
         self.use_surf = 0
         self.first_item_count = 0
         self.gym_core_npc_count = 0
@@ -1464,6 +1466,8 @@ class RedGymEnv(Env):
         self.seen_action_bag_menu = 1
 
     def blackout_hook(self, *args, **kwargs):
+        # 전멸 직전 배틀 종류(야생 1 / 트레이너 2). 보상에서 트레이너 패배 블랙아웃만 예외 처리.
+        self._blackout_last_from_trainer_battle = int(self.read_m("wIsInBattle")) == 2
         self.blackout_count += 1
 
     def blackout_update_hook(self, *args, **kwargs):

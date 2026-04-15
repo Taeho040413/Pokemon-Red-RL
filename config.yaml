@@ -311,17 +311,20 @@ rewards:
       new_room: 3.0
       new_npc_textbox: 0.6
       script_step: 0.006
-      step_penalty: -0.00001 #-0.0001
-      repeat_npc_penalty: -0.05
-      invalid_interaction: -0.002
-      start_menu_penalty: -0.035
-      stuck_penalty: -0.003
-      blackout_penalty: -2.0
+      # 트레이너전 승리 1회당 (야생 승리는 미포함)
+      trainer_battle_win: 0.1
+      # 야생전에서 아군 포켓몬 기절(HP>0→0) 1마리당; 트레이너전 기절은 미적용
+      death: -0.8
       # 포켓몬 센터 방문 및 리스폰 포인트 등록 유도
       pokecenter_first_entry: 3.0
       pokecenter_first_heal: 5.0
-      # blackout(전체 기절) 후 부활로 HP가 올라오는 경우 제외
-      pokecenter_heal_hp: 0.012
+      # 전멸 후 부활로 HP가 올라오는 경우 제외
+      pokecenter_heal_hp: 0.005
+      step_penalty: -0.000015 #-0.0001
+      repeat_npc_penalty: -0.05
+      invalid_interaction: -0.002
+      start_menu_penalty: -0.022
+      stuck_penalty: -0.003
 
 # Policies to use for training.
 # Each policy is keyed by a name for the commandline.
