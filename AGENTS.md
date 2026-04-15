@@ -30,12 +30,20 @@ See `README.md` and `pyproject.toml` for full details. Quick reference:
 
 ### Running the application end-to-end
 
-Training and evaluation require two external assets **not included in the repository** (copyrighted / user-supplied):
+Training and evaluation require one external asset **not included in the repository** (copyrighted / user-supplied):
 
-1. **Pokemon Red ROM** (`red.gb`) — referenced as `DEFAULT_ROM = "red.gb"` in `train.py`
-2. **PyBoy save state** (`pyboy_states/PewterCity.state`) — configured via `config.yaml` → `env.state_dir` + `env.init_state`
+- **Pokemon Red ROM** (`red.gb`) — must be placed at the workspace root. The file is gitignored (`*.gb` in `.gitignore`) so it cannot be committed. Without this file, `train`, `debug`, and `evaluate` commands will fail with `FileNotFoundError: ROM file red.gb was not found!`.
 
-Without these files, the training entry point will fail at runtime. Tests (`python -m pytest tests`) use mocked PyBoy and do **not** require the ROM or save state.
+The **PyBoy save states** (`pyboy_states/*.state`) are already committed. The default init state is `pyboy_states/PewterCity.state` (configured in `config.yaml` → `env.state_dir` + `env.init_state`).
+
+Tests (`python -m pytest tests`) use mocked PyBoy and do **not** require the ROM or save state.
+
+### Hello world verification (without ROM)
+
+Even without the ROM, you can verify the dev environment works by:
+1. Running tests: `python -m pytest tests -v` (6 tests, all pass)
+2. CLI check: `python3 -m pokemonred_puffer.train --help`
+3. Environment instantiation with mocked PyBoy (tests do this automatically)
 
 ### Non-obvious caveats
 
