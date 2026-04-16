@@ -1,0 +1,64 @@
+diff --git a/config.yaml b/config.yaml
+index 7d2a6f9..777698e 100755
+--- a/config.yaml
++++ b/config.yaml
+@@ -302,7 +302,7 @@ rewards:
+   baseline.ExplorationInteractionRewardEnv:
+     reward:
+       event: 5.0 #1.0
+-      item: 2.0 #0.75
++      item: 2.5 #0.75
+       gym_core_npc: 1.5
+       npc_first_talk: 3.0
+       object_first_interaction: 0.6
+@@ -325,7 +325,7 @@ rewards:
+       invalid_interaction: -0.002
+       start_menu_penalty: -0.022
+       stuck_penalty: -0.003
+-      wild_encounter_penalty: -0.03
++      wild_encounter_penalty: -0.042
+ 
+ # Policies to use for training.
+ # Each policy is keyed by a name for the commandline.
+diff --git a/pokemonred_puffer/rewards/__pycache__/baseline.cpython-310.pyc b/pokemonred_puffer/rewards/__pycache__/baseline.cpython-310.pyc
+index e7c5708..69c24c9 100644
+Binary files a/pokemonred_puffer/rewards/__pycache__/baseline.cpython-310.pyc and b/pokemonred_puffer/rewards/__pycache__/baseline.cpython-310.pyc differ
+diff --git a/runs/pokemon-red-003/trainer_state.pt b/runs/pokemon-red-003/trainer_state.pt
+index 8cbec1e..75d39f3 100644
+Binary files a/runs/pokemon-red-003/trainer_state.pt and b/runs/pokemon-red-003/trainer_state.pt differ
+diff --git a/wandb/debug-internal.log b/wandb/debug-internal.log
+index f914271..a64813c 120000
+--- a/wandb/debug-internal.log
++++ b/wandb/debug-internal.log
+@@ -1 +1 @@
+-run-20260415_172125-9fdo341m/logs/debug-internal.log
+\ No newline at end of file
++run-20260416_114611-8mx4trq1/logs/debug-internal.log
+\ No newline at end of file
+diff --git a/wandb/debug.log b/wandb/debug.log
+index b2f796b..dcec80c 120000
+--- a/wandb/debug.log
++++ b/wandb/debug.log
+@@ -1 +1 @@
+-run-20260415_172125-9fdo341m/logs/debug.log
+\ No newline at end of file
++run-20260416_114611-8mx4trq1/logs/debug.log
+\ No newline at end of file
+diff --git a/wandb/latest-run b/wandb/latest-run
+index 5d1fcba..5ea392b 120000
+--- a/wandb/latest-run
++++ b/wandb/latest-run
+@@ -1 +1 @@
+-run-20260415_172125-9fdo341m
+\ No newline at end of file
++run-20260416_114611-8mx4trq1
+\ No newline at end of file
+diff --git a/wandb/wandb-resume.json b/wandb/wandb-resume.json
+index 7795996..09f7848 100644
+--- a/wandb/wandb-resume.json
++++ b/wandb/wandb-resume.json
+@@ -1 +1 @@
+-{"run_id": "9fdo341m"}
+\ No newline at end of file
++{"run_id": "8mx4trq1"}
+\ No newline at end of file

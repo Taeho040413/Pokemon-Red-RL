@@ -1,0 +1,39 @@
+diff --git a/pokemonred_puffer/rewards/__pycache__/baseline.cpython-310.pyc b/pokemonred_puffer/rewards/__pycache__/baseline.cpython-310.pyc
+index e7c5708..69c24c9 100644
+Binary files a/pokemonred_puffer/rewards/__pycache__/baseline.cpython-310.pyc and b/pokemonred_puffer/rewards/__pycache__/baseline.cpython-310.pyc differ
+diff --git a/wandb/debug-internal.log b/wandb/debug-internal.log
+index f914271..2d60494 120000
+--- a/wandb/debug-internal.log
++++ b/wandb/debug-internal.log
+@@ -1 +1 @@
+-run-20260415_172125-9fdo341m/logs/debug-internal.log
+\ No newline at end of file
++run-20260416_111636-trhkbmdh/logs/debug-internal.log
+\ No newline at end of file
+diff --git a/wandb/debug.log b/wandb/debug.log
+index b2f796b..b0fb5c0 120000
+--- a/wandb/debug.log
++++ b/wandb/debug.log
+@@ -1 +1 @@
+-run-20260415_172125-9fdo341m/logs/debug.log
+\ No newline at end of file
++run-20260416_111636-trhkbmdh/logs/debug.log
+\ No newline at end of file
+diff --git a/wandb/latest-run b/wandb/latest-run
+index 5d1fcba..0a47daf 120000
+--- a/wandb/latest-run
++++ b/wandb/latest-run
+@@ -1 +1 @@
+-run-20260415_172125-9fdo341m
+\ No newline at end of file
++run-20260416_111636-trhkbmdh
+\ No newline at end of file
+diff --git a/wandb/wandb-resume.json b/wandb/wandb-resume.json
+index 7795996..d4e980f 100644
+--- a/wandb/wandb-resume.json
++++ b/wandb/wandb-resume.json
+@@ -1 +1 @@
+-{"run_id": "9fdo341m"}
+\ No newline at end of file
++{"run_id": "trhkbmdh"}
+\ No newline at end of file

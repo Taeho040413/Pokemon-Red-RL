@@ -302,7 +302,7 @@ rewards:
   baseline.ExplorationInteractionRewardEnv:
     reward:
       event: 5.0 #1.0
-      item: 2.0 #0.75
+      item: 2.5 #0.75
       gym_core_npc: 1.5
       npc_first_talk: 3.0
       object_first_interaction: 0.6
@@ -325,7 +325,7 @@ rewards:
       invalid_interaction: -0.002
       start_menu_penalty: -0.022
       stuck_penalty: -0.003
-      wild_encounter_penalty: -0.03
+      wild_encounter_penalty: -0.054
 
 # Policies to use for training.
 # Each policy is keyed by a name for the commandline.
