@@ -242,8 +242,8 @@ class RedGymEnv(Env):
             # Discrete is more apt, but pufferlib is slower at processing Discrete
             "direction": spaces.Box(low=0, high=4, shape=(1,), dtype=np.uint8),
             "blackout_map_id": spaces.Box(low=0, high=0xF7, shape=(1,), dtype=np.uint8),
-            # 전투 타입은 도감(Seen) 기준으로 마스킹해서 제공합니다.
-            "battle_type": spaces.Box(low=0, high=4, shape=(1,), dtype=np.uint8),
+            # wIsInBattle 과 동일: 0=필드/비전투·도감 마스크, 1=야생, 2=트레이너 (도감 Seen 마스크 시 0)
+            "battle_type": spaces.Box(low=0, high=2, shape=(1,), dtype=np.uint8),
             # "x": spaces.Box(low=0, high=255, shape=(1,), dtype=np.u`int8),
             # "y": spaces.Box(low=0, high=255, shape=(1,), dtype=np.uint8),
             "map_id": spaces.Box(low=0, high=0xF7, shape=(1,), dtype=np.uint8),
@@ -466,8 +466,6 @@ class RedGymEnv(Env):
         self.step_count = 0
         self.blackout_check = 0
         self.blackout_count = 0
-        # pokered: wIsInBattle 1=야생, 2=트레이너 — HandleBlackOut 시점에만 의미 있음
-        self._blackout_last_from_trainer_battle = False
         self.use_surf = 0
         self.first_item_count = 0
         self.gym_core_npc_count = 0
@@ -477,7 +475,6 @@ class RedGymEnv(Env):
         self.new_building_count = 0
         self.new_room_count = 0
         self.new_npc_textbox_count = 0
-        self.script_step_count = 0
         self.repeat_npc_interaction_count = 0
 
         self.current_event_flags_set = {}
@@ -724,9 +721,9 @@ class RedGymEnv(Env):
         } | ({"global_map": global_map} if self.use_global_map else {})
 
     def _masked_battle_type(self) -> np.ndarray:
-        battle_type = int(self.read_m("wIsInBattle")) + 1
-        # 전투 중이 아니면 0 유지
-        if battle_type <= 1:
+        """관측용 전투 구분. 값은 WRAM ``wIsInBattle`` 과 동일 (0/1/2)."""
+        is_battle = int(self.read_m("wIsInBattle"))
+        if is_battle == 0:
             return np.array(0, dtype=np.uint8)
 
         # 도감에서 본 적 없는 상대 포켓몬이면 battle_type을 숨깁니다.
@@ -736,7 +733,7 @@ class RedGymEnv(Env):
             return np.array(0, dtype=np.uint8)
 
         if 0 <= enemy_species < len(self.seen_pokemon) and int(self.seen_pokemon[enemy_species]) > 0:
-            return np.array(battle_type, dtype=np.uint8)
+            return np.array(is_battle, dtype=np.uint8)
         return np.array(0, dtype=np.uint8)
 
     def _get_obs(self):
@@ -1466,8 +1463,6 @@ class RedGymEnv(Env):
         self.seen_action_bag_menu = 1
 
     def blackout_hook(self, *args, **kwargs):
-        # 전멸 직전 배틀 종류(야생 1 / 트레이너 2). 보상에서 트레이너 패배 블랙아웃만 예외 처리.
-        self._blackout_last_from_trainer_battle = int(self.read_m("wIsInBattle")) == 2
         self.blackout_count += 1
 
     def blackout_update_hook(self, *args, **kwargs):

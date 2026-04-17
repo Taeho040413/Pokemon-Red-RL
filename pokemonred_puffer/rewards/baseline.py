@@ -10,14 +10,50 @@ from pokemonred_puffer.environment import VALID_ACTIONS, RedGymEnv
 from pokemonred_puffer.global_map import local_to_global
 
 
-_OUTDOOR_SURFACE_TILESETS: frozenset[int] = frozenset(
+# 오픈 필드(마을·도로·사천): 여기서 나가 처음 들어가는 구역 = new_building 후보
+_FIELD_TILESETS: frozenset[int] = frozenset(
     {
         Tilesets.OVERWORLD.value,
         Tilesets.PLATEAU.value,
+    }
+)
+# 숲·게이트 등: 필드↔연결 구간은 new_building, 연결↔연결(다른 맵)은 new_room
+_CONNECTOR_TILESETS: frozenset[int] = frozenset(
+    {
         Tilesets.GATE.value,
         Tilesets.FOREST_GATE.value,
         Tilesets.FOREST.value,
     }
+)
+
+# pokered: FIRST_INDOOR_MAP == REDS_HOUSE_1F (0x25) — 그 미만은 마을·도로 등 야외 맵 ID
+_LAST_OUTDOOR_MAP_ID: int = MapIds.ROUTE_25.value
+
+# GATE / FOREST / FOREST_GATE 타일셋을 쓰는 맵 (타일셋이 0으로 읽힐 때 보조 분류)
+_CONNECTOR_MAP_IDS: frozenset[int] = frozenset(
+    m.value
+    for m in (
+        MapIds.VIRIDIAN_FOREST_NORTH_GATE,
+        MapIds.ROUTE_2_GATE,
+        MapIds.VIRIDIAN_FOREST_SOUTH_GATE,
+        MapIds.VIRIDIAN_FOREST,
+        MapIds.ROUTE_5_GATE,
+        MapIds.ROUTE_6_GATE,
+        MapIds.ROUTE_7_GATE,
+        MapIds.ROUTE_8_GATE,
+        MapIds.ROUTE_11_GATE_1F,
+        MapIds.ROUTE_11_GATE_2F,
+        MapIds.ROUTE_12_GATE_1F,
+        MapIds.ROUTE_12_GATE_2F,
+        MapIds.SAFARI_ZONE_GATE,
+        MapIds.ROUTE_15_GATE_1F,
+        MapIds.ROUTE_15_GATE_2F,
+        MapIds.ROUTE_16_GATE_1F,
+        MapIds.ROUTE_16_GATE_2F,
+        MapIds.ROUTE_18_GATE_1F,
+        MapIds.ROUTE_18_GATE_2F,
+        MapIds.ROUTE_22_GATE,
+    )
 )
 
 _POKECENTER_MAP_IDS: frozenset[int] = frozenset(
@@ -89,7 +125,6 @@ class ExplorationInteractionRewardEnv(BaselineRewardEnv):
         self.new_building_count = 0
         self.new_room_count = 0
         self.new_npc_textbox_count = 0
-        self.script_step_count = 0
         self.repeat_npc_interaction_count = 0
         self.invalid_interaction_count = 0
         self.start_menu_open_count = 0
@@ -100,7 +135,6 @@ class ExplorationInteractionRewardEnv(BaselineRewardEnv):
         self.death_count = 0
         self.trainer_battle_win_count = 0
         self.pokecenter_first_entry_count = 0
-        self.pokecenter_first_heal_count = 0
         self.pokecenter_heal_hp_count = 0
         self._same_coord_streak = 0
         self._last_coord_for_stuck: tuple[int, int, int] | None = None
@@ -109,14 +143,10 @@ class ExplorationInteractionRewardEnv(BaselineRewardEnv):
         self._seen_unique_coords: set[tuple[int, int, int]] = set()
         self._seen_building_map_ids: set[int] = set()
         self._seen_pokecenter_entries: set[int] = set()
-        self._seen_pokecenter_heals: set[int] = set()
         self._seen_room_map_ids: set[int] = set()
         self._seen_npc_textboxes: set[tuple[int, int]] = set()
 
-        self._last_map_id: int | None = None
-        self._last_tileset: int | None = None
         self._last_blackout_map_id: int | None = None
-        self._last_script_state: tuple[int, int, int] | None = None
         self._last_bag_item_counts: dict[int, int] = {}
         self._item_kinds_ever_obtained: set[int] = set()
         self._pending_npc_key: tuple[int, int] | None = None
@@ -138,8 +168,24 @@ class ExplorationInteractionRewardEnv(BaselineRewardEnv):
         return int(sum(self.read_short(f"wPartyMon{i+1}HP") for i in range(party_size)))
 
     @staticmethod
-    def _is_outdoor_surface_tileset(tileset: int) -> bool:
-        return tileset in _OUTDOOR_SURFACE_TILESETS
+    def _tileset_kind(tileset: int) -> str:
+        """field | connector | interior — 건물/방 구분에 사용."""
+        if tileset in _FIELD_TILESETS:
+            return "field"
+        if tileset in _CONNECTOR_TILESETS:
+            return "connector"
+        return "interior"
+
+    @classmethod
+    def _tileset_kind_for_structure(cls, map_id: int, raw_tileset: int) -> str:
+        """맵 전환 직후 wCurMapTileset==0 인 프레임 보정 + 맵 ID 기반 보조 분류."""
+        if raw_tileset != 0:
+            return cls._tileset_kind(raw_tileset)
+        if map_id <= _LAST_OUTDOOR_MAP_ID:
+            return "field"
+        if map_id in _CONNECTOR_MAP_IDS:
+            return "connector"
+        return "interior"
 
     @staticmethod
     def _is_pokecenter_map(map_id: int) -> bool:
@@ -167,31 +213,54 @@ class ExplorationInteractionRewardEnv(BaselineRewardEnv):
         self._seen_pokecenter_entries.add(map_id)
         self.pokecenter_first_entry_count += 1
 
-    def _maybe_reward_pokecenter_heal(self, map_id: int) -> None:
-        if not self._is_pokecenter_map(map_id) or map_id in self._seen_pokecenter_heals:
-            return
-        self._seen_pokecenter_heals.add(map_id)
-        self.pokecenter_first_heal_count += 1
-
-    def _record_first_indoor_visit(
-        self,
-        map_id: int,
-        cur_tileset: int,
-        *,
-        came_from_outdoor: bool,
-        force_building: bool = False,
-    ) -> None:
-        if self._is_outdoor_surface_tileset(cur_tileset):
-            return
+    def _try_register_structure_visit(self, map_id: int, *, as_building: bool) -> None:
+        """맵 ID당 최초 1회만 new_building 또는 new_room 카운트."""
         if map_id in self._seen_building_map_ids or map_id in self._seen_room_map_ids:
             return
-
-        if came_from_outdoor or force_building:
+        if as_building:
             self._register_new_building(map_id)
             self._maybe_reward_pokecenter_entry(map_id)
+        else:
+            self._register_new_room(map_id)
+
+    def _apply_map_change_structure_reward(
+        self,
+        prev_map_id: int,
+        prev_tileset: int,
+        map_id: int,
+        cur_tileset: int,
+    ) -> None:
+        """wCurMap 이 바뀐 한 번에 대해 new_building / new_room 분기.
+
+        반드시 에뮬레이터 한 액션의 (시작 시점 맵, 종료 시점 맵) 비교에서만 호출한다.
+        update_seen_coords(첫 tick 직후)와 Joy 루프 이후를 따로 보면 같은 워프에 대해 서로 다른
+        prev_tileset 이 잡혀 new_room / new_building 이 뒤틀릴 수 있다.
+        """
+        if self._is_pokecenter_map(int(prev_map_id)) and not self._is_pokecenter_map(int(map_id)):
+            self._suppress_pokecenter_shaping_after_blackout = False
+
+        prev_kind = self._tileset_kind_for_structure(prev_map_id, prev_tileset)
+        cur_kind = self._tileset_kind_for_structure(map_id, cur_tileset)
+
+        if self._is_pokecenter_map(map_id):
+            self._try_register_structure_visit(map_id, as_building=True)
             return
 
-        self._register_new_room(map_id)
+        if cur_kind == "field":
+            return
+
+        if cur_kind == "interior":
+            as_building = prev_kind in ("field", "connector")
+            if prev_kind == "interior":
+                as_building = False
+            self._try_register_structure_visit(map_id, as_building=as_building)
+            return
+
+        # cur_kind == "connector" (숲·게이트 등 다른 맵으로 이동)
+        if prev_kind == "field":
+            self._try_register_structure_visit(map_id, as_building=True)
+        elif prev_kind == "connector":
+            self._try_register_structure_visit(map_id, as_building=False)
 
     def _ensure_pokecenter_entry_recorded(self, map_id: int, cur_tileset: int) -> None:
         if not self._is_pokecenter_map(map_id):
@@ -201,20 +270,13 @@ class ExplorationInteractionRewardEnv(BaselineRewardEnv):
         # observed before the first-entry bookkeeping. Backfill the center entry,
         # and only synthesize new_building when this indoor map has never been seen.
         if (
-            not self._is_outdoor_surface_tileset(cur_tileset)
+            self._tileset_kind_for_structure(map_id, cur_tileset) != "field"
             and map_id not in self._seen_building_map_ids
             and map_id not in self._seen_room_map_ids
         ):
             self._register_new_building(map_id)
 
         self._maybe_reward_pokecenter_entry(map_id)
-
-    def _current_script_state(self) -> tuple[int, int, int]:
-        return (
-            self.read_m("wCurMap"),
-            self.read_m("wCurMapScript"),
-            self.read_short("wCurMapScriptPtr"),
-        )
 
     def _get_bag_item_counts(self) -> dict[int, int]:
         # wNumBagItems is a uint8 in WRAM. If it reads as 0 (or wraps unexpectedly),
@@ -245,15 +307,11 @@ class ExplorationInteractionRewardEnv(BaselineRewardEnv):
         cur_tileset = self.read_m("wCurMapTileset")
         self._seen_unique_coords.add((x_pos, y_pos, map_id))
 
-        # Start indoors (cave/mart/gym/…): seed room set so indoor↔indoor is new_room only.
-        # Outdoor surface starts (route/town/plateau/forest) do not seed — first door gives new_building.
-        if not self._is_outdoor_surface_tileset(cur_tileset):
+        # 필드가 아닌 곳에서 시작: 해당 맵은 이미 "방문한 구역"으로 두어 첫 전환 보상이 꼬이지 않게 함
+        if self._tileset_kind_for_structure(map_id, cur_tileset) != "field":
             self._seen_room_map_ids.add(map_id)
 
-        self._last_map_id = map_id
-        self._last_tileset = cur_tileset
         self._last_blackout_map_id = int(self.read_m("wLastBlackoutMap"))
-        self._last_script_state = self._current_script_state()
         self._last_bag_item_counts = self._get_bag_item_counts()
         self._item_kinds_ever_obtained = {
             item_id
@@ -274,13 +332,10 @@ class ExplorationInteractionRewardEnv(BaselineRewardEnv):
 
     def update_seen_coords(self):
         self._seed_reward_state_if_needed()
-        prev_map_id = self._last_map_id
-        prev_tileset = self._last_tileset
 
         super().update_seen_coords()
 
         x_pos, y_pos, map_id = self.get_game_coords()
-        cur_tileset = self.read_m("wCurMapTileset")
         cur_coord = (x_pos, y_pos, map_id)
 
         if cur_coord not in self._seen_unique_coords:
@@ -303,35 +358,17 @@ class ExplorationInteractionRewardEnv(BaselineRewardEnv):
             _gy, _gx = local_to_global(y_pos, x_pos, map_id)
             self.stuck_tile_map[_gy, _gx] = min(self.stuck_tile_map[_gy, _gx] + 1.0, 1e4)
 
-        if prev_map_id is not None and map_id != prev_map_id:
-            if self._is_pokecenter_map(int(prev_map_id)) and not self._is_pokecenter_map(
-                int(map_id)
-            ):
-                self._suppress_pokecenter_shaping_after_blackout = False
-            prev_out = self._is_outdoor_surface_tileset(prev_tileset)
-            cur_out = self._is_outdoor_surface_tileset(cur_tileset)
-            if not cur_out:
-                # Pokecenters should remain "building-like" even if the exact
-                # outdoor -> indoor transition was not surfaced on this step.
-                self._record_first_indoor_visit(
-                    map_id,
-                    cur_tileset,
-                    came_from_outdoor=prev_out,
-                    force_building=self._is_pokecenter_map(map_id),
-                )
-
-        self._last_map_id = map_id
-        self._last_tileset = cur_tileset
-
     def run_action_on_emulator(self, action):
         self._seed_reward_state_if_needed()
+        # 구조 보상: 이 액션 직전 WRAM vs Joy 루프까지 포함한 직후 WRAM (한 스텝·한 번만 판정)
+        map_before = int(self.read_m("wCurMap"))
+        ts_before = int(self.read_m("wCurMapTileset"))
         self._interaction_triggered_this_step = False
         pressed_a = VALID_ACTIONS[action] == WindowEvent.PRESS_BUTTON_A
 
         hp_sum_before = int(self._read_party_hp_sum())
         prev_pokecenter_heal = int(self.pokecenter_heal)
         prev_blackout_count = int(self.blackout_count)
-        prev_last_blackout_map_id = self._last_blackout_map_id
         prev_is_in_battle = int(self.read_m("wIsInBattle"))
         party_n = max(0, min(int(self.read_m("wPartyCount")), 6))
         hp_before_slots = [
@@ -339,6 +376,12 @@ class ExplorationInteractionRewardEnv(BaselineRewardEnv):
         ]
 
         super().run_action_on_emulator(action)
+
+        map_after = int(self.read_m("wCurMap"))
+        ts_after = int(self.read_m("wCurMapTileset"))
+        if self._reward_state_seeded and map_before != map_after:
+            self._apply_map_change_structure_reward(map_before, ts_before, map_after, ts_after)
+
         current_blackout_map_id = int(self.read_m("wLastBlackoutMap"))
         self._last_blackout_map_id = current_blackout_map_id
 
@@ -347,12 +390,8 @@ class ExplorationInteractionRewardEnv(BaselineRewardEnv):
 
         # 개체 기절(슬롯 HP >0 → 0): 야생전(wIsInBattle==1)만 death_count. 트레이너전(2)은 무패널티.
         # 마지막 기절 후 배틀 플래그가 이미 0이면 prev_is_in_battle으로 복원.
-        post_is_in_battle = int(self.read_m("wIsInBattle"))
-        battle_ctx = (
-            post_is_in_battle
-            if post_is_in_battle in (1, 2)
-            else prev_is_in_battle
-        )
+        post_battle = int(self.read_m("wIsInBattle"))
+        battle_ctx = post_battle if post_battle in (1, 2) else prev_is_in_battle
         party_n2 = max(0, min(int(self.read_m("wPartyCount")), 6))
         for i in range(min(party_n, party_n2)):
             hp_after_slot = int(self.read_short(f"wPartyMon{i+1}HP"))
@@ -362,13 +401,13 @@ class ExplorationInteractionRewardEnv(BaselineRewardEnv):
         # 트레이너전 승리만 보상 (wIsInBattle 2→0, 동일 스텝 블랙아웃 없음). 야생 승리/도주는 제외.
         if (
             prev_is_in_battle == 2
-            and int(self.read_m("wIsInBattle")) == 0
+            and post_battle == 0
             and int(self.blackout_count) == prev_blackout_count
         ):
             self.trainer_battle_win_count += 1
 
-        # 야생전 조우 진입(필드 0 -> 야생전 1)만 카운트
-        if prev_is_in_battle == 0 and int(self.read_m("wIsInBattle")) == 1:
+        # 야생 조우: 필드(0) → 야생(1)만. 트레이너는 2라서 제외.
+        if prev_is_in_battle == 0 and post_battle == 1:
             self.wild_encounter_count += 1
 
         # Pokémon Center healing reward:
@@ -378,24 +417,15 @@ class ExplorationInteractionRewardEnv(BaselineRewardEnv):
         did_blackout = int(self.blackout_count) > prev_blackout_count
         if self.pokecenter_heal == 1 and prev_pokecenter_heal == 0:
             hp_sum_after = int(self._read_party_hp_sum())
-            should_count_first_heal = True
-            # Stricter gating option: only count first-heal bonus when the game
-            # actually updates the registered respawn point on this step.
-            # should_count_first_heal = (
-            #     prev_last_blackout_map_id is None
-            #     or current_blackout_map_id != prev_last_blackout_map_id
-            # )
             if (
                 hp_sum_before > 0
                 and not did_blackout
-                and should_count_first_heal
                 and not self._suppress_pokecenter_shaping_after_blackout
             ):
                 healed = max(0, hp_sum_after - hp_sum_before)
                 current_map_id = int(self.read_m("wCurMap"))
                 current_tileset = int(self.read_m("wCurMapTileset"))
                 self._ensure_pokecenter_entry_recorded(current_map_id, current_tileset)
-                self._maybe_reward_pokecenter_heal(current_map_id)
                 self.pokecenter_heal_hp_count += healed
 
         # One-shot so we don't double count across steps.
@@ -465,19 +495,6 @@ class ExplorationInteractionRewardEnv(BaselineRewardEnv):
                 self._seen_npc_textboxes.add(self._pending_npc_key)
                 self.new_npc_textbox_count += 1
 
-        current_script_state = self._current_script_state()
-        if self._last_script_state is None:
-            self._last_script_state = current_script_state
-        elif (
-            current_script_state != self._last_script_state
-            and self._pending_npc_key is not None
-            and self._textbox_active()
-        ):
-            self.script_step_count += 1
-            self._last_script_state = current_script_state
-        else:
-            self._last_script_state = current_script_state
-
         if not self._textbox_active():
             self._pending_npc_key = None
 
@@ -496,7 +513,6 @@ class ExplorationInteractionRewardEnv(BaselineRewardEnv):
             "new_building": self._reward("new_building") * self.new_building_count,
             "new_room": self._reward("new_room") * self.new_room_count,
             "new_npc_textbox": self._reward("new_npc_textbox") * self.new_npc_textbox_count,
-            "script_step": self._reward("script_step") * self.script_step_count,
             "step_penalty": self._reward("step_penalty") * self.step_count,
             "repeat_npc_penalty": self._reward("repeat_npc_penalty")
             * self.repeat_npc_interaction_count,
@@ -512,8 +528,6 @@ class ExplorationInteractionRewardEnv(BaselineRewardEnv):
             "death": self._reward("death") * self.death_count,
             "pokecenter_first_entry": self._reward("pokecenter_first_entry")
             * self.pokecenter_first_entry_count,
-            "pokecenter_first_heal": self._reward("pokecenter_first_heal")
-            * self.pokecenter_first_heal_count,
             "pokecenter_heal_hp": self._reward("pokecenter_heal_hp")
             * self.pokecenter_heal_hp_count,
         }

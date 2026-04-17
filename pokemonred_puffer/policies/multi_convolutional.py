@@ -236,7 +236,7 @@ class MultiConvolutionalPolicy(nn.Module):
                 self.screen_network(image_observation.float() / 255.0).squeeze(1),
                 one_hot(observations["direction"].int(), 4).float().squeeze(1),
                 # one_hot(observations["reset_map_id"].int(), 0xF7).float().squeeze(1),
-                one_hot(observations["battle_type"].int(), 4).float().squeeze(1),
+                one_hot(observations["battle_type"].int(), 3).float().squeeze(1),
                 # observations["cut_event"].float(),
                 # observations["x"].float(),
                 # observations["y"].float(),
