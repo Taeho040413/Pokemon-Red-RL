@@ -105,6 +105,14 @@ def install_ram_from_sav(sav_path: Path, ram_path: Path):
     print(f"SAV 적용 완료 ({strategy}): {ram_path} ({len(out)} bytes)", flush=True)
 
 
+def find_default_sav_candidates(rom_path: Path, ram_path: Path) -> list[Path]:
+    return [
+        ram_path.with_suffix(".sav"),
+        rom_path.with_suffix(".sav"),
+        rom_path.with_name(f"{rom_path.name}.sav"),
+    ]
+
+
 def auto_skip_intro(pyboy: PyBoy, max_ticks: int = 2400):
     # Try to pass title/intro and land on overworld quickly.
     for i in range(max_ticks):
@@ -148,8 +156,8 @@ def main():
     parser.add_argument(
         "--speed",
         type=int,
-        default=1,
-        help="PyBoy emulation speed multiplier (e.g. 3 for 3x)",
+        default=5,
+        help="PyBoy emulation speed multiplier (default: 5, e.g. 3 for 3x)",
     )
     parser.add_argument(
         "--export-sav",
@@ -197,11 +205,33 @@ def main():
         ram_path.parent.mkdir(parents=True, exist_ok=True)
         install_ram_from_sav(args.sav_path, ram_path)
     elif not ram_path.exists():
-        raise FileNotFoundError(f"RAM not found: {ram_path}")
+        candidate_savs = [p for p in find_default_sav_candidates(rom_path, ram_path) if p.exists()]
+        if candidate_savs:
+            ram_path.parent.mkdir(parents=True, exist_ok=True)
+            print(f"RAM 없음. SAV 자동 변환 사용: {candidate_savs[0]}", flush=True)
+            install_ram_from_sav(candidate_savs[0], ram_path)
+        else:
+            print(
+                "RAM/SAV 파일이 없어서 새 게임 상태로 실행합니다. "
+                "--sav-path 로 배터리 세이브를 지정하면 Continue 상태에서 시작할 수 있습니다.",
+                flush=True,
+            )
 
     STATE_DIR.mkdir(exist_ok=True)
 
-    pyboy = PyBoy(str(rom_path), window="SDL2")
+    sym = str(POKERED_SYM) if POKERED_SYM.is_file() else None
+    pyboy_kwargs = dict(
+        window="SDL2",
+        log_level="CRITICAL",
+        symbols=sym,
+        sound_emulated=False,
+    )
+    if ram_path.exists():
+        pyboy = PyBoy(str(rom_path), ram_file=io.BytesIO(ram_path.read_bytes()), **pyboy_kwargs)
+        print(f"RAM 로드 완료: {ram_path}", flush=True)
+    else:
+        pyboy = PyBoy(str(rom_path), **pyboy_kwargs)
+        print("RAM 없이 실행됨", flush=True)
     if args.speed < 1:
         raise ValueError("--speed must be >= 1")
     pyboy.set_emulation_speed(args.speed)
