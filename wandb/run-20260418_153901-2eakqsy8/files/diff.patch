@@ -1,0 +1,128 @@
+diff --git a/config.yaml b/config.yaml
+index b3957cd..c3e1b3a 100755
+--- a/config.yaml
++++ b/config.yaml
+@@ -106,7 +106,7 @@ env:
+   # required_tolerance: 0.02
+ 
+ train:
+-  exp_id: pokemon-red-003
++  exp_id: pokemon-red-004
+   # Random seed
+   seed: 1
+   # Use deterministic Torch algorithms
+diff --git a/pokemonred_puffer/__pycache__/cleanrl_puffer.cpython-310.pyc b/pokemonred_puffer/__pycache__/cleanrl_puffer.cpython-310.pyc
+index b5a6166..1ba3d0d 100644
+Binary files a/pokemonred_puffer/__pycache__/cleanrl_puffer.cpython-310.pyc and b/pokemonred_puffer/__pycache__/cleanrl_puffer.cpython-310.pyc differ
+diff --git a/pokemonred_puffer/__pycache__/environment.cpython-310.pyc b/pokemonred_puffer/__pycache__/environment.cpython-310.pyc
+index e2dad13..ba1e01f 100644
+Binary files a/pokemonred_puffer/__pycache__/environment.cpython-310.pyc and b/pokemonred_puffer/__pycache__/environment.cpython-310.pyc differ
+diff --git a/pokemonred_puffer/cleanrl_puffer.py b/pokemonred_puffer/cleanrl_puffer.py
+index db8b2f7..eedb150 100755
+--- a/pokemonred_puffer/cleanrl_puffer.py
++++ b/pokemonred_puffer/cleanrl_puffer.py
+@@ -141,6 +141,14 @@ class Losses:
+     explained_variance: float = 0.0
+ 
+ 
++def _policy_tree_has_lazy_modules(root: nn.Module) -> bool:
++    """torch.compile(Dynamo) + Lazy*는 첫 추론 시 in_features를 틀리게 잡는 경우가 있어 비권장."""
++    for m in root.modules():
++        if isinstance(m, (nn.LazyLinear, nn.LazyConv2d)):
++            return True
++    return False
++
++
+ @dataclass
+ class CleanPuffeRL:
+     exp_name: str
+@@ -205,6 +213,15 @@ class CleanPuffeRL:
+ 
+         self.uncompiled_policy = self.policy
+ 
++        if self.config.compile and _policy_tree_has_lazy_modules(self.uncompiled_policy):
++            print(
++                "[train] torch.compile + nn.LazyLinear/LazyConv2d 조합은 in_features 불일치(예: 4219 vs 4220)를 "
++                "유발할 수 있어 compile을 끕니다. 속도가 필요하면 정책의 Lazy*를 고정 nn.Linear/Conv로 바꾼 뒤 "
++                "train.compile 을 다시 켜세요.",
++                flush=True,
++            )
++            self.config.compile = False
++
+         if self.config.compile:
+             self.policy = torch.compile(self.policy, mode=self.config.compile_mode)
+ 
+@@ -250,7 +267,9 @@ class CleanPuffeRL:
+             del self.infos[k]
+ 
+         with self.profile.eval_misc:
+-            policy = self.policy
++            # torch.compile + Dynamo는 LazyLinear 초기화 시 가짜 입력 차원이 한 칸 어긋나
++            # (예: 4219 vs 4220) AssertionError를 유발할 수 있어, 롤아웃 추론은 비컴파일 정책만 사용.
++            policy = self.uncompiled_policy if self.config.compile else self.policy
+             lstm_h, lstm_c = self.experience.lstm_h, self.experience.lstm_c
+ 
+         while not self.experience.full:
+@@ -759,10 +778,16 @@ class CleanPuffeRL:
+ 
+         model_path = self.save_checkpoint()
+         if self.wandb_client is not None:
+-            artifact_name = f"{self.exp_name}_model"
+-            artifact = wandb.Artifact(artifact_name, type="model")
+-            artifact.add_file(model_path)
+-            self.wandb_client.log_artifact(artifact)
++            try:
++                artifact_name = f"{self.exp_name}_model"
++                artifact = wandb.Artifact(artifact_name, type="model")
++                artifact.add_file(model_path)
++                self.wandb_client.log_artifact(artifact)
++            except Exception as e:
++                print(
++                    f"[checkpoint] wandb 아티팩트 업로드 생략(로컬 종료는 계속): {e}",
++                    flush=True,
++                )
+ 
+     def _print_checkpoint_log(self, model_path: str, state_path: str):
+         print("[checkpoint] 저장 완료")
+diff --git a/pokemonred_puffer/policies/__pycache__/multi_convolutional.cpython-310.pyc b/pokemonred_puffer/policies/__pycache__/multi_convolutional.cpython-310.pyc
+index 2df9720..119433f 100644
+Binary files a/pokemonred_puffer/policies/__pycache__/multi_convolutional.cpython-310.pyc and b/pokemonred_puffer/policies/__pycache__/multi_convolutional.cpython-310.pyc differ
+diff --git a/pokemonred_puffer/rewards/__pycache__/baseline.cpython-310.pyc b/pokemonred_puffer/rewards/__pycache__/baseline.cpython-310.pyc
+index 69c24c9..41f1002 100644
+Binary files a/pokemonred_puffer/rewards/__pycache__/baseline.cpython-310.pyc and b/pokemonred_puffer/rewards/__pycache__/baseline.cpython-310.pyc differ
+diff --git a/wandb/debug-internal.log b/wandb/debug-internal.log
+index a64813c..e527e3c 120000
+--- a/wandb/debug-internal.log
++++ b/wandb/debug-internal.log
+@@ -1 +1 @@
+-run-20260416_114611-8mx4trq1/logs/debug-internal.log
+\ No newline at end of file
++run-20260418_153901-2eakqsy8/logs/debug-internal.log
+\ No newline at end of file
+diff --git a/wandb/debug.log b/wandb/debug.log
+index dcec80c..123e5f3 120000
+--- a/wandb/debug.log
++++ b/wandb/debug.log
+@@ -1 +1 @@
+-run-20260416_114611-8mx4trq1/logs/debug.log
+\ No newline at end of file
++run-20260418_153901-2eakqsy8/logs/debug.log
+\ No newline at end of file
+diff --git a/wandb/latest-run b/wandb/latest-run
+index 5ea392b..238db81 120000
+--- a/wandb/latest-run
++++ b/wandb/latest-run
+@@ -1 +1 @@
+-run-20260416_114611-8mx4trq1
+\ No newline at end of file
++run-20260418_153901-2eakqsy8
+\ No newline at end of file
+diff --git a/wandb/wandb-resume.json b/wandb/wandb-resume.json
+index 09f7848..ee0a318 100644
+--- a/wandb/wandb-resume.json
++++ b/wandb/wandb-resume.json
+@@ -1 +1 @@
+-{"run_id": "8mx4trq1"}
+\ No newline at end of file
++{"run_id": "2eakqsy8"}
+\ No newline at end of file

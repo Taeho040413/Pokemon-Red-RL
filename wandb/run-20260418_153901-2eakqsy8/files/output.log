@@ -1,0 +1,173 @@
+[resume] 최신 체크포인트 자동 선택: /home/pnudtn06/yuntaeho/pokemonred_clean/runs/pokemon-red-004/model_000000.pt
+[resume] 로드할 모델 파일: /home/pnudtn06/yuntaeho/pokemonred_clean/runs/pokemon-red-004/model_000000.pt
+/home/pnudtn06/.conda/envs/pokerl310/lib/python3.10/site-packages/gymnasium/core.py:311: UserWarning: [33mWARN: env.env_id to get variables from other wrappers is deprecated and will be removed in v1.0, to get this variable you can do `env.unwrapped.env_id` for environment variables or `env.get_wrapper_attr('env_id')` that will search the reminding wrappers.[0m
+  logger.warn(
+Initialized sqlite row 0
+/home/pnudtn06/.conda/envs/pokerl310/lib/python3.10/site-packages/gymnasium/core.py:311: UserWarning: [33mWARN: env.two_bit to get variables from other wrappers is deprecated and will be removed in v1.0, to get this variable you can do `env.unwrapped.two_bit` for environment variables or `env.get_wrapper_attr('two_bit')` that will search the reminding wrappers.[0m
+  logger.warn(
+/home/pnudtn06/.conda/envs/pokerl310/lib/python3.10/site-packages/gymnasium/core.py:311: UserWarning: [33mWARN: env.use_global_map to get variables from other wrappers is deprecated and will be removed in v1.0, to get this variable you can do `env.unwrapped.use_global_map` for environment variables or `env.get_wrapper_attr('use_global_map')` that will search the reminding wrappers.[0m
+  logger.warn(
+[2J[H[0;0H[96m╭───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╮[0m
+/home/pnudtn06/.conda/envs/pokerl310/lib/python3.10/site-packages/numpy/core/fromnumeric.py:3432: RuntimeWarning: Mean of empty slice.
+  return _methods._mean(a, axis=axis, dtype=dtype,
+/home/pnudtn06/.conda/envs/pokerl310/lib/python3.10/site-packages/numpy/core/_methods.py:190: RuntimeWarning: invalid value encountered in double_scalars
+  ret = ret.dtype.type(ret / rcount)
+[96m│[0m  🐡 [96mPufferLib [0m[97m1.0.0[0m                                                                                        [96mCPU: [0m[36mnan%[0m                               [96mGPU: [0m[36mnan%[0m                                [96mDRAM: [0m[36m0.4%[0m                                                [96mVRAM: [0m[36mnan%[0m  [96m│[0m
+[96m│[0m [1m                                                                                    [0m[1m [0m[1m [0m[1m                                                                                      [0m[1m [0m[1m [0m[1m                                                                                   [0m [96m│[0m
+[96m│[0m [1m [0m[1;96mSummary[0m[1m                                             [0m[1m [0m[1m [0m[1m                       [0m[1;96mValue[0m[1m [0m   [96mEvaluate[0m                                                        [97m0[0m[37ms[0m               [97m 0%[0m   [1m [0m[1;96mLosses[0m[1m                                              [0m[1m [0m[1m [0m[1m                      [0m[1;96mValue[0m[1m [0m [96m│[0m
+[96m│[0m  [37mEnvironment[0m                                                            [97mPokemon Red[0m    [96m  Forward[0m                                                       [97m0[0m[37ms[0m               [97m 0%[0m    [37mpolicy_loss[0m                                                                 [97m0.000[0m  [96m│[0m
+[96m│[0m  [37mAgent Steps[0m                                                                      [97m0[0m    [96m  Env[0m                                                           [97m0[0m[37ms[0m               [97m 0%[0m    [37mvalue_loss[0m                                                                  [97m0.000[0m  [96m│[0m
+[96m│[0m  [37mSPS[0m                                                                              [97m0[0m    [96m  Misc[0m                                                          [97m0[0m[37ms[0m               [97m 0%[0m    [37mentropy[0m                                                                     [97m0.000[0m  [96m│[0m
+[96m│[0m  [37mEpoch[0m                                                                            [97m0[0m    [96mTrain[0m                                                           [97m0[0m[37ms[0m               [97m 0%[0m    [37mold_approx_kl[0m                                                               [97m0.000[0m  [96m│[0m
+[96m│[0m  [37mUptime[0m                                                                          [97m0[0m[37ms[0m    [96m  Forward[0m                                                       [97m0[0m[37ms[0m               [97m 0%[0m    [37mapprox_kl[0m                                                                   [97m0.000[0m  [96m│[0m
+[96m│[0m  [37mRemaining[0m                                                                       [97m0[0m[37ms[0m    [96m  Learn[0m                                                         [97m0[0m[37ms[0m               [97m 0%[0m    [37mclipfrac[0m                                                                    [97m0.000[0m  [96m│[0m
+[96m│[0m                                                                                        [96m  Misc[0m                                                          [97m0[0m[37ms[0m               [97m 0%[0m    [37mexplained_variance[0m                                                          [97m0.000[0m  [96m│[0m
+[96m│[0m [1m                                                                                                                                [0m[1m [0m[1m [0m[1m                                                                                                                               [0m [96m│[0m
+[96m│[0m [1m [0m[1;96mUser Stats[0m[1m                                                                              [0m[1m [0m[1m [0m[1m                               [0m[1;96mValue[0m[1m [0m  [1m [0m[1;96mUser Stats[0m[1m                                                                             [0m[1m [0m[1m [0m[1m                               [0m[1;96mValue[0m[1m [0m [96m│[0m
+[96m│[0m [1m                                                                                                                                                                                                                                                                 [0m [96m│[0m
+[96m│[0m  [96mMessage: [0m                                                                                                                                                                                                                                                        [96m│[0m
+[96m╰───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╯[0m
+
+[train] torch.compile + nn.LazyLinear/LazyConv2d 조합은 in_features 불일치(예: 4219 vs 4220)를 유발할 수 있어 compile을 끕니다. 속도가 필요하면 정책의 Lazy*를 고정 nn.Linear/Conv로 바꾼 뒤 train.compile 을 다시 켜세요.
+[resume] 정책 가중치 로드 완료: /home/pnudtn06/yuntaeho/pokemonred_clean/runs/pokemon-red-004/model_000000.pt
+/home/pnudtn06/.conda/envs/pokerl310/lib/python3.10/site-packages/pufferlib/pytorch.py:130: FutureWarning: _check_is_size will be removed in a future PyTorch release along with guard_size_oblivious.     Use _check(i >= 0) instead.
+  torch._check_is_size(offset)
+/home/pnudtn06/.conda/envs/pokerl310/lib/python3.10/site-packages/pufferlib/pytorch.py:131: FutureWarning: _check_is_size will be removed in a future PyTorch release along with guard_size_oblivious.     Use _check(i >= 0) instead.
+  torch._check_is_size(delta)
+Done training.
+[checkpoint] 저장 완료
+[checkpoint] 모델 경로: runs/pokemon-red-004/model_000000.pt
+[checkpoint] 트레이너 상태 경로: runs/pokemon-red-004/trainer_state.pt
+[checkpoint] 저장 완료
+[checkpoint] 모델 경로: runs/pokemon-red-004/model_000000.pt
+[checkpoint] 트레이너 상태 경로: runs/pokemon-red-004/trainer_state.pt
+[checkpoint] wandb 아티팩트 업로드 생략(로컬 종료는 계속): API key verification failed for host https://api.wandb.ai. Make sure your API key is valid.
+Run complete
+Traceback (most recent call last):
+  File "/home/pnudtn06/.conda/envs/pokerl310/lib/python3.10/runpy.py", line 196, in _run_module_as_main
+    return _run_code(code, main_globals, None,
+  File "/home/pnudtn06/.conda/envs/pokerl310/lib/python3.10/runpy.py", line 86, in _run_code
+    exec(code, run_globals)
+  File "/home/pnudtn06/yuntaeho/pokemonred_clean/pokemonred_puffer/train.py", line 841, in <module>
+    app()
+  File "/home/pnudtn06/.conda/envs/pokerl310/lib/python3.10/site-packages/typer/main.py", line 1152, in __call__
+    raise e
+  File "/home/pnudtn06/.conda/envs/pokerl310/lib/python3.10/site-packages/typer/main.py", line 1135, in __call__
+    return get_command(self)(*args, **kwargs)
+  File "/home/pnudtn06/.conda/envs/pokerl310/lib/python3.10/site-packages/click/core.py", line 1485, in __call__
+    return self.main(*args, **kwargs)
+  File "/home/pnudtn06/.conda/envs/pokerl310/lib/python3.10/site-packages/typer/core.py", line 795, in main
+    return _main(
+  File "/home/pnudtn06/.conda/envs/pokerl310/lib/python3.10/site-packages/typer/core.py", line 188, in _main
+    rv = self.invoke(ctx)
+  File "/home/pnudtn06/.conda/envs/pokerl310/lib/python3.10/site-packages/click/core.py", line 1873, in invoke
+    return _process_result(sub_ctx.command.invoke(sub_ctx))
+  File "/home/pnudtn06/.conda/envs/pokerl310/lib/python3.10/site-packages/click/core.py", line 1269, in invoke
+    return ctx.invoke(self.callback, **ctx.params)
+  File "/home/pnudtn06/.conda/envs/pokerl310/lib/python3.10/site-packages/click/core.py", line 824, in invoke
+    return callback(*args, **kwargs)
+  File "/home/pnudtn06/.conda/envs/pokerl310/lib/python3.10/site-packages/typer/main.py", line 1514, in wrapper
+    return callback(**use_params)
+  File "/home/pnudtn06/yuntaeho/pokemonred_clean/pokemonred_puffer/train.py", line 833, in train
+    trainer.evaluate()
+  File "/home/pnudtn06/.conda/envs/pokerl310/lib/python3.10/site-packages/pufferlib/utils.py", line 336, in wrapper
+    result = func(*args, **kwargs)
+  File "/home/pnudtn06/yuntaeho/pokemonred_clean/pokemonred_puffer/cleanrl_puffer.py", line 294, in evaluate
+    actions, logprob, _, value, (h, c) = policy(o_device, (h, c))
+  File "/home/pnudtn06/.conda/envs/pokerl310/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1779, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+  File "/home/pnudtn06/.conda/envs/pokerl310/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1790, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/home/pnudtn06/.conda/envs/pokerl310/lib/python3.10/site-packages/pufferlib/frameworks/cleanrl.py", line 93, in forward
+    return self.get_action_and_value(x, state, action)
+  File "/home/pnudtn06/.conda/envs/pokerl310/lib/python3.10/site-packages/pufferlib/frameworks/cleanrl.py", line 88, in get_action_and_value
+    logits, value, state = self.policy(x, state)
+  File "/home/pnudtn06/.conda/envs/pokerl310/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1779, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+  File "/home/pnudtn06/.conda/envs/pokerl310/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1790, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/home/pnudtn06/.conda/envs/pokerl310/lib/python3.10/site-packages/pufferlib/models.py", line 101, in forward
+    hidden, lookup = self.policy.encode_observations(x)
+  File "/home/pnudtn06/yuntaeho/pokemonred_clean/pokemonred_puffer/policies/multi_convolutional.py", line 258, in encode_observations
+    return self.encode_linear(cat_obs), None
+  File "/home/pnudtn06/.conda/envs/pokerl310/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1779, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+  File "/home/pnudtn06/.conda/envs/pokerl310/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1790, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/home/pnudtn06/.conda/envs/pokerl310/lib/python3.10/site-packages/torch/nn/modules/container.py", line 253, in forward
+    input = module(input)
+  File "/home/pnudtn06/.conda/envs/pokerl310/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1779, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+  File "/home/pnudtn06/.conda/envs/pokerl310/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1885, in _call_impl
+    return inner()
+  File "/home/pnudtn06/.conda/envs/pokerl310/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1812, in inner
+    args_kwargs_result = hook(self, args, kwargs)  # type: ignore[misc]
+  File "/home/pnudtn06/.conda/envs/pokerl310/lib/python3.10/site-packages/torch/nn/modules/lazy.py", line 263, in _infer_parameters
+    module.initialize_parameters(*args, **kwargs)
+  File "/home/pnudtn06/.conda/envs/pokerl310/lib/python3.10/site-packages/torch/nn/modules/linear.py", line 330, in initialize_parameters
+    raise AssertionError(
+AssertionError: The in_features inferred from input: 4219 is not equal to in_features from self.weight: 4220
+Traceback (most recent call last):
+  File "/home/pnudtn06/.conda/envs/pokerl310/lib/python3.10/runpy.py", line 196, in _run_module_as_main
+    return _run_code(code, main_globals, None,
+  File "/home/pnudtn06/.conda/envs/pokerl310/lib/python3.10/runpy.py", line 86, in _run_code
+    exec(code, run_globals)
+  File "/home/pnudtn06/yuntaeho/pokemonred_clean/pokemonred_puffer/train.py", line 841, in <module>
+    app()
+  File "/home/pnudtn06/.conda/envs/pokerl310/lib/python3.10/site-packages/typer/main.py", line 1152, in __call__
+    raise e
+  File "/home/pnudtn06/.conda/envs/pokerl310/lib/python3.10/site-packages/typer/main.py", line 1135, in __call__
+    return get_command(self)(*args, **kwargs)
+  File "/home/pnudtn06/.conda/envs/pokerl310/lib/python3.10/site-packages/click/core.py", line 1485, in __call__
+    return self.main(*args, **kwargs)
+  File "/home/pnudtn06/.conda/envs/pokerl310/lib/python3.10/site-packages/typer/core.py", line 795, in main
+    return _main(
+  File "/home/pnudtn06/.conda/envs/pokerl310/lib/python3.10/site-packages/typer/core.py", line 188, in _main
+    rv = self.invoke(ctx)
+  File "/home/pnudtn06/.conda/envs/pokerl310/lib/python3.10/site-packages/click/core.py", line 1873, in invoke
+    return _process_result(sub_ctx.command.invoke(sub_ctx))
+  File "/home/pnudtn06/.conda/envs/pokerl310/lib/python3.10/site-packages/click/core.py", line 1269, in invoke
+    return ctx.invoke(self.callback, **ctx.params)
+  File "/home/pnudtn06/.conda/envs/pokerl310/lib/python3.10/site-packages/click/core.py", line 824, in invoke
+    return callback(*args, **kwargs)
+  File "/home/pnudtn06/.conda/envs/pokerl310/lib/python3.10/site-packages/typer/main.py", line 1514, in wrapper
+    return callback(**use_params)
+  File "/home/pnudtn06/yuntaeho/pokemonred_clean/pokemonred_puffer/train.py", line 833, in train
+    trainer.evaluate()
+  File "/home/pnudtn06/.conda/envs/pokerl310/lib/python3.10/site-packages/pufferlib/utils.py", line 336, in wrapper
+    result = func(*args, **kwargs)
+  File "/home/pnudtn06/yuntaeho/pokemonred_clean/pokemonred_puffer/cleanrl_puffer.py", line 294, in evaluate
+    actions, logprob, _, value, (h, c) = policy(o_device, (h, c))
+  File "/home/pnudtn06/.conda/envs/pokerl310/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1779, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+  File "/home/pnudtn06/.conda/envs/pokerl310/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1790, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/home/pnudtn06/.conda/envs/pokerl310/lib/python3.10/site-packages/pufferlib/frameworks/cleanrl.py", line 93, in forward
+    return self.get_action_and_value(x, state, action)
+  File "/home/pnudtn06/.conda/envs/pokerl310/lib/python3.10/site-packages/pufferlib/frameworks/cleanrl.py", line 88, in get_action_and_value
+    logits, value, state = self.policy(x, state)
+  File "/home/pnudtn06/.conda/envs/pokerl310/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1779, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+  File "/home/pnudtn06/.conda/envs/pokerl310/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1790, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/home/pnudtn06/.conda/envs/pokerl310/lib/python3.10/site-packages/pufferlib/models.py", line 101, in forward
+    hidden, lookup = self.policy.encode_observations(x)
+  File "/home/pnudtn06/yuntaeho/pokemonred_clean/pokemonred_puffer/policies/multi_convolutional.py", line 258, in encode_observations
+    return self.encode_linear(cat_obs), None
+  File "/home/pnudtn06/.conda/envs/pokerl310/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1779, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+  File "/home/pnudtn06/.conda/envs/pokerl310/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1790, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/home/pnudtn06/.conda/envs/pokerl310/lib/python3.10/site-packages/torch/nn/modules/container.py", line 253, in forward
+    input = module(input)
+  File "/home/pnudtn06/.conda/envs/pokerl310/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1779, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+  File "/home/pnudtn06/.conda/envs/pokerl310/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1885, in _call_impl
+    return inner()
+  File "/home/pnudtn06/.conda/envs/pokerl310/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1812, in inner
+    args_kwargs_result = hook(self, args, kwargs)  # type: ignore[misc]
+  File "/home/pnudtn06/.conda/envs/pokerl310/lib/python3.10/site-packages/torch/nn/modules/lazy.py", line 263, in _infer_parameters
+    module.initialize_parameters(*args, **kwargs)
+  File "/home/pnudtn06/.conda/envs/pokerl310/lib/python3.10/site-packages/torch/nn/modules/linear.py", line 330, in initialize_parameters
+    raise AssertionError(
+AssertionError: The in_features inferred from input: 4219 is not equal to in_features from self.weight: 4220

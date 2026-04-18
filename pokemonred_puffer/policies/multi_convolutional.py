@@ -3,6 +3,7 @@ import pufferlib.models
 import pufferlib.pytorch
 import torch
 from torch import nn
+from torch.nn.parameter import UninitializedParameter
 
 from pokemonred_puffer.data.events import EVENTS_IDXS
 from pokemonred_puffer.data.items import Items
@@ -14,6 +15,27 @@ def one_hot(tensor, num_classes):
     return (tensor.view([*tensor.shape, 1]) == index.view([1] * tensor.ndim + [num_classes])).to(
         torch.int64
     )
+
+
+def _align_cat_obs_to_materialized_encode_linear(
+    encode_linear: nn.Sequential, cat_obs: torch.Tensor
+) -> torch.Tensor:
+    """encode_linear[0] 가 이미 고정 in_features 일 때 cat_obs 마지막 차원만 ±1 어긋나면 패드/절단."""
+    if not isinstance(encode_linear, nn.Sequential) or len(encode_linear) == 0:
+        return cat_obs
+    first = encode_linear[0]
+    w = getattr(first, "weight", None)
+    if isinstance(w, UninitializedParameter):
+        return cat_obs
+    if not isinstance(w, torch.Tensor) or w.ndim != 2 or w.shape[1] < 1:
+        return cat_obs
+    inf = int(w.shape[1])
+    d = int(cat_obs.shape[-1]) - inf
+    if d == 0:
+        return cat_obs
+    if d < 0:
+        return torch.nn.functional.pad(cat_obs, (0, -d))
+    return cat_obs[..., :inf]
 
 
 class MultiConvolutionalRNN(pufferlib.models.LSTMWrapper):
@@ -255,6 +277,7 @@ class MultiConvolutionalPolicy(nn.Module):
             ),
             dim=-1,
         )
+        cat_obs = _align_cat_obs_to_materialized_encode_linear(self.encode_linear, cat_obs)
         return self.encode_linear(cat_obs), None
 
     def decode_actions(self, flat_hidden, lookup, concat=None):

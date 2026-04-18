@@ -250,7 +250,8 @@ class CleanPuffeRL:
             del self.infos[k]
 
         with self.profile.eval_misc:
-            policy = self.policy
+            # train() 은 compile된 self.policy, 롤아웃 수집만 동일 가중치의 uncompiled 참조로 추론(compile·Lazy 조합 안정화).
+            policy = self.uncompiled_policy if self.config.compile else self.policy
             lstm_h, lstm_c = self.experience.lstm_h, self.experience.lstm_c
 
         while not self.experience.full:
@@ -759,10 +760,16 @@ class CleanPuffeRL:
 
         model_path = self.save_checkpoint()
         if self.wandb_client is not None:
-            artifact_name = f"{self.exp_name}_model"
-            artifact = wandb.Artifact(artifact_name, type="model")
-            artifact.add_file(model_path)
-            self.wandb_client.log_artifact(artifact)
+            try:
+                artifact_name = f"{self.exp_name}_model"
+                artifact = wandb.Artifact(artifact_name, type="model")
+                artifact.add_file(model_path)
+                self.wandb_client.log_artifact(artifact)
+            except Exception as e:
+                print(
+                    f"[checkpoint] wandb 아티팩트 업로드 생략(로컬 종료는 계속): {e}",
+                    flush=True,
+                )
 
     def _print_checkpoint_log(self, model_path: str, state_path: str):
         print("[checkpoint] 저장 완료")

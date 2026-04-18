@@ -235,12 +235,21 @@ class ExplorationInteractionRewardEnv(BaselineRewardEnv):
         반드시 에뮬레이터 한 액션의 (시작 시점 맵, 종료 시점 맵) 비교에서만 호출한다.
         update_seen_coords(첫 tick 직후)와 Joy 루프 이후를 따로 보면 같은 워프에 대해 서로 다른
         prev_tileset 이 잡혀 new_room / new_building 이 뒤틀릴 수 있다.
+
+        new_building으로 가야 할 전환(야외/게이트→실내)이 new_room으로 가면 안 되므로,
+        pokered 상 맵 ID가 FIRST_INDOOR_MAP(0x25) 미만이면 **항상 field**로 본다
+        (타일셋 0·한 프레임 오독으로 interior로 분류되는 경우 차단).
         """
         if self._is_pokecenter_map(int(prev_map_id)) and not self._is_pokecenter_map(int(map_id)):
             self._suppress_pokecenter_shaping_after_blackout = False
 
         prev_kind = self._tileset_kind_for_structure(prev_map_id, prev_tileset)
+        if prev_map_id <= _LAST_OUTDOOR_MAP_ID:
+            prev_kind = "field"
+
         cur_kind = self._tileset_kind_for_structure(map_id, cur_tileset)
+        if map_id <= _LAST_OUTDOOR_MAP_ID:
+            cur_kind = "field"
 
         if self._is_pokecenter_map(map_id):
             self._try_register_structure_visit(map_id, as_building=True)

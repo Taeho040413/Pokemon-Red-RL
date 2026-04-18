@@ -1,0 +1,144 @@
+diff --git a/config.yaml b/config.yaml
+index b3957cd..c3e1b3a 100755
+--- a/config.yaml
++++ b/config.yaml
+@@ -106,7 +106,7 @@ env:
+   # required_tolerance: 0.02
+ 
+ train:
+-  exp_id: pokemon-red-003
++  exp_id: pokemon-red-004
+   # Random seed
+   seed: 1
+   # Use deterministic Torch algorithms
+diff --git a/pokemonred_puffer/__pycache__/cleanrl_puffer.cpython-310.pyc b/pokemonred_puffer/__pycache__/cleanrl_puffer.cpython-310.pyc
+index b5a6166..aa52873 100644
+Binary files a/pokemonred_puffer/__pycache__/cleanrl_puffer.cpython-310.pyc and b/pokemonred_puffer/__pycache__/cleanrl_puffer.cpython-310.pyc differ
+diff --git a/pokemonred_puffer/__pycache__/environment.cpython-310.pyc b/pokemonred_puffer/__pycache__/environment.cpython-310.pyc
+index e2dad13..ba1e01f 100644
+Binary files a/pokemonred_puffer/__pycache__/environment.cpython-310.pyc and b/pokemonred_puffer/__pycache__/environment.cpython-310.pyc differ
+diff --git a/pokemonred_puffer/cleanrl_puffer.py b/pokemonred_puffer/cleanrl_puffer.py
+index db8b2f7..9cc6073 100755
+--- a/pokemonred_puffer/cleanrl_puffer.py
++++ b/pokemonred_puffer/cleanrl_puffer.py
+@@ -250,7 +250,8 @@ class CleanPuffeRL:
+             del self.infos[k]
+ 
+         with self.profile.eval_misc:
+-            policy = self.policy
++            # train() 은 compile된 self.policy, 롤아웃 수집만 동일 가중치의 uncompiled 참조로 추론(compile·Lazy 조합 안정화).
++            policy = self.uncompiled_policy if self.config.compile else self.policy
+             lstm_h, lstm_c = self.experience.lstm_h, self.experience.lstm_c
+ 
+         while not self.experience.full:
+@@ -759,10 +760,16 @@ class CleanPuffeRL:
+ 
+         model_path = self.save_checkpoint()
+         if self.wandb_client is not None:
+-            artifact_name = f"{self.exp_name}_model"
+-            artifact = wandb.Artifact(artifact_name, type="model")
+-            artifact.add_file(model_path)
+-            self.wandb_client.log_artifact(artifact)
++            try:
++                artifact_name = f"{self.exp_name}_model"
++                artifact = wandb.Artifact(artifact_name, type="model")
++                artifact.add_file(model_path)
++                self.wandb_client.log_artifact(artifact)
++            except Exception as e:
++                print(
++                    f"[checkpoint] wandb 아티팩트 업로드 생략(로컬 종료는 계속): {e}",
++                    flush=True,
++                )
+ 
+     def _print_checkpoint_log(self, model_path: str, state_path: str):
+         print("[checkpoint] 저장 완료")
+diff --git a/pokemonred_puffer/policies/__pycache__/multi_convolutional.cpython-310.pyc b/pokemonred_puffer/policies/__pycache__/multi_convolutional.cpython-310.pyc
+index 2df9720..119433f 100644
+Binary files a/pokemonred_puffer/policies/__pycache__/multi_convolutional.cpython-310.pyc and b/pokemonred_puffer/policies/__pycache__/multi_convolutional.cpython-310.pyc differ
+diff --git a/pokemonred_puffer/policies/multi_convolutional.py b/pokemonred_puffer/policies/multi_convolutional.py
+index a7f9487..60e8d25 100755
+--- a/pokemonred_puffer/policies/multi_convolutional.py
++++ b/pokemonred_puffer/policies/multi_convolutional.py
+@@ -3,6 +3,7 @@ import pufferlib.models
+ import pufferlib.pytorch
+ import torch
+ from torch import nn
++from torch.nn.parameter import UninitializedParameter
+ 
+ from pokemonred_puffer.data.events import EVENTS_IDXS
+ from pokemonred_puffer.data.items import Items
+@@ -16,6 +17,27 @@ def one_hot(tensor, num_classes):
+     )
+ 
+ 
++def _align_cat_obs_to_materialized_encode_linear(
++    encode_linear: nn.Sequential, cat_obs: torch.Tensor
++) -> torch.Tensor:
++    """encode_linear[0] 가 이미 고정 in_features 일 때 cat_obs 마지막 차원만 ±1 어긋나면 패드/절단."""
++    if not isinstance(encode_linear, nn.Sequential) or len(encode_linear) == 0:
++        return cat_obs
++    first = encode_linear[0]
++    w = getattr(first, "weight", None)
++    if isinstance(w, UninitializedParameter):
++        return cat_obs
++    if not isinstance(w, torch.Tensor) or w.ndim != 2 or w.shape[1] < 1:
++        return cat_obs
++    inf = int(w.shape[1])
++    d = int(cat_obs.shape[-1]) - inf
++    if d == 0:
++        return cat_obs
++    if d < 0:
++        return torch.nn.functional.pad(cat_obs, (0, -d))
++    return cat_obs[..., :inf]
++
++
+ class MultiConvolutionalRNN(pufferlib.models.LSTMWrapper):
+     def __init__(self, env, policy, input_size=512, hidden_size=512, num_layers=1):
+         super().__init__(env, policy, input_size, hidden_size, num_layers)
+@@ -255,6 +277,7 @@ class MultiConvolutionalPolicy(nn.Module):
+             ),
+             dim=-1,
+         )
++        cat_obs = _align_cat_obs_to_materialized_encode_linear(self.encode_linear, cat_obs)
+         return self.encode_linear(cat_obs), None
+ 
+     def decode_actions(self, flat_hidden, lookup, concat=None):
+diff --git a/pokemonred_puffer/rewards/__pycache__/baseline.cpython-310.pyc b/pokemonred_puffer/rewards/__pycache__/baseline.cpython-310.pyc
+index 69c24c9..41f1002 100644
+Binary files a/pokemonred_puffer/rewards/__pycache__/baseline.cpython-310.pyc and b/pokemonred_puffer/rewards/__pycache__/baseline.cpython-310.pyc differ
+diff --git a/wandb/debug-internal.log b/wandb/debug-internal.log
+index a64813c..c34a204 120000
+--- a/wandb/debug-internal.log
++++ b/wandb/debug-internal.log
+@@ -1 +1 @@
+-run-20260416_114611-8mx4trq1/logs/debug-internal.log
+\ No newline at end of file
++run-20260418_154253-lok7xj4z/logs/debug-internal.log
+\ No newline at end of file
+diff --git a/wandb/debug.log b/wandb/debug.log
+index dcec80c..779e95c 120000
+--- a/wandb/debug.log
++++ b/wandb/debug.log
+@@ -1 +1 @@
+-run-20260416_114611-8mx4trq1/logs/debug.log
+\ No newline at end of file
++run-20260418_154253-lok7xj4z/logs/debug.log
+\ No newline at end of file
+diff --git a/wandb/latest-run b/wandb/latest-run
+index 5ea392b..a1d7794 120000
+--- a/wandb/latest-run
++++ b/wandb/latest-run
+@@ -1 +1 @@
+-run-20260416_114611-8mx4trq1
+\ No newline at end of file
++run-20260418_154253-lok7xj4z
+\ No newline at end of file
+diff --git a/wandb/wandb-resume.json b/wandb/wandb-resume.json
+index 09f7848..a8c5b35 100644
+--- a/wandb/wandb-resume.json
++++ b/wandb/wandb-resume.json
+@@ -1 +1 @@
+-{"run_id": "8mx4trq1"}
+\ No newline at end of file
++{"run_id": "lok7xj4z"}
+\ No newline at end of file
