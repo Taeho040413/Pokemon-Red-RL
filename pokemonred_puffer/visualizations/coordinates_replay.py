@@ -11,7 +11,8 @@ from pokemonred_puffer.eval import BACKGROUND
 from pokemonred_puffer.global_map import local_to_global
 
 PLAYER_PATH = os.path.join(os.path.dirname(__file__), "player.png")
-PLAYER = np.array(cv2.imread(PLAYER_PATH, cv2.IMREAD_COLOR))
+# BACKGROUND와 동일하게 RGB로 맞춰야 mediapy로 내보낸 영상에서 색 반전이 일어나지 않는다.
+PLAYER = cv2.cvtColor(cv2.imread(PLAYER_PATH, cv2.IMREAD_COLOR), cv2.COLOR_BGR2RGB)
 
 
 def main():

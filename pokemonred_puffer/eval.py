@@ -8,7 +8,9 @@ from pokemonred_puffer.global_map import PAD
 
 
 KANTO_MAP_PATH = os.path.join(os.path.dirname(__file__), "kanto_map_dsv.png")
-BACKGROUND = np.array(cv2.imread(KANTO_MAP_PATH))
+# cv2.imread()는 BGR로 로드되지만 downstream(wandb.Image, mediapy, matplotlib)은 RGB를 기대함.
+# 한 번만 변환해 두어 채널 스왑으로 인한 색 반전(빨간 지붕이 파랗게 보이는 등)을 방지한다.
+BACKGROUND = cv2.cvtColor(cv2.imread(KANTO_MAP_PATH), cv2.COLOR_BGR2RGB)
 BACKGROUND = np.pad(BACKGROUND, ((PAD * 16, PAD * 16), (PAD * 16, PAD * 16), (0, 0)))
 
 
@@ -24,12 +26,16 @@ def make_pokemon_red_overlay(counts: np.ndarray):
 
 
 def _make_pokemon_red_overlay_rgb(counts: np.ndarray):
-    # Max over envs: mean would dim colors when envs explore different routes (e.g. num_envs>1).
+    # 각 env 맵은 이미 카테고리별 색(방문=연두, stuck=빨강, 고보상=파랑, 건물=보라)으로
+    # 칠해져 있다. 산술 평균을 쓰면 "1개 env만 방문한 타일"이 0으로 희석돼 검게 뭉개지고
+    # 0 초과 마스크에는 걸려 배경을 덮어 얼룩처럼 보인다. 채널별 max(= 하이라이트 합집합)로
+    # 바꾸면 소수 env만 방문한 타일도 원색이 유지된다.
     rgb = np.max(counts, axis=0).astype(np.float32)
     rgb = np.clip(rgb, 0.0, 1.0)
     overlay = (255.0 * rgb).astype(np.uint8)
+    # 색이 극히 작은 잔여 노이즈까지 오버레이되지 않도록 채널 최대값 기준으로 살짝 컷오프.
     nonzero = np.ascontiguousarray(
-        np.where(np.sum(rgb, axis=-1) > 1e-4, 1.0, 0.0).astype(np.float32)
+        np.where(np.max(rgb, axis=-1) > 1e-2, 1.0, 0.0).astype(np.float32)
     )
 
     kernel = np.ascontiguousarray(np.ones((16, 16), dtype=np.uint8))
@@ -43,9 +49,8 @@ def _make_pokemon_red_overlay_rgb(counts: np.ndarray):
     mask = np.kron(nonzero, kernel).astype(np.uint8)
     mask = np.stack((mask, mask, mask), axis=-1) != 0
 
-    # BACKGROUND is BGR (cv2); blend in RGB so red/blue match build_pokemon_exploration_rgb.
-    background_rgb = cv2.cvtColor(BACKGROUND, cv2.COLOR_BGR2RGB)
-    render = background_rgb.copy().astype(np.int32)
+    # BACKGROUND는 로드 시 이미 RGB로 변환되어 있어 추가 변환이 필요 없다.
+    render = BACKGROUND.copy().astype(np.int32)
     render_shape = render.shape
     render = render.ravel()
     render[mask.ravel()] = 0.2 * render[mask.ravel()] + 0.8 * overlay.ravel()[mask.ravel()]

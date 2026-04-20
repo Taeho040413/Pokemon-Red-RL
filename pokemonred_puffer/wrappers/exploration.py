@@ -82,8 +82,9 @@ class DecayWrapper(gym.Wrapper):
         self.env.unwrapped.reward_explore_map[self.env.unwrapped.explore_map > 0] = np.clip(
             self.env.unwrapped.reward_explore_map[self.env.unwrapped.explore_map > 0], 0.15, 1
         )
-        self.env.unwrapped.stuck_tile_map *= self.step_forgetting_factor["explore"]
+        self.env.unwrapped.wild_encounter_tile_map *= self.step_forgetting_factor["explore"]
         self.env.unwrapped.high_reward_tile_map *= self.step_forgetting_factor["explore"]
+        self.env.unwrapped.building_entry_tile_map *= self.step_forgetting_factor["explore"]
         self.env.unwrapped.seen_hidden_objs.update(
             (k, max(0.15, v * (self.step_forgetting_factor["hidden_objs"])))
             for k, v in self.env.unwrapped.seen_hidden_objs.items()
@@ -127,8 +128,9 @@ class MaxLengthWrapper(gym.Wrapper):
             gy, gx = local_to_global(y, x, n)
             self.env.unwrapped.explore_map[gy, gx] = 0
             self.env.unwrapped.reward_explore_map[gy, gx] = 0
-            self.env.unwrapped.stuck_tile_map[gy, gx] = 0
+            self.env.unwrapped.wild_encounter_tile_map[gy, gx] = 0
             self.env.unwrapped.high_reward_tile_map[gy, gx] = 0
+            self.env.unwrapped.building_entry_tile_map[gy, gx] = 0
         return step
 
 
@@ -146,8 +148,9 @@ class OnResetExplorationWrapper(gym.Wrapper):
                 self.env.unwrapped.explore_map *= 0
                 self.env.unwrapped.reward_explore_map *= 0
                 self.env.unwrapped.cut_explore_map *= 0
-                self.env.unwrapped.stuck_tile_map *= 0
+                self.env.unwrapped.wild_encounter_tile_map *= 0
                 self.env.unwrapped.high_reward_tile_map *= 0
+                self.env.unwrapped.building_entry_tile_map *= 0
                 self.env.unwrapped.cut_tiles.clear()
                 self.env.unwrapped.seen_coords.clear()
                 self.env.unwrapped.seen_map_ids *= 0

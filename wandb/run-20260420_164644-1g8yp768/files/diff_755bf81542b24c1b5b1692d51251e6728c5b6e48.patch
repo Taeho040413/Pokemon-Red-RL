@@ -1,0 +1,255 @@
+diff --git a/config.yaml b/config.yaml
+index b17f41f..a51acb3 100755
+--- a/config.yaml
++++ b/config.yaml
+@@ -311,19 +311,19 @@ rewards:
+       new_room: 4.0
+       new_npc_textbox: 0.6
+       # 트레이너전 승리 1회당 (야생 승리는 미포함)
+-      trainer_battle_win: 0.4
++      trainer_battle_win: 0.5
+       # 야생전에서 아군 포켓몬 기절(HP>0→0) 1마리당; 트레이너전 기절은 미적용
+       death: -0.5
+       # 포켓몬 센터 방문 및 리스폰 포인트 등록 유도
+       pokecenter_first_entry: 4.0
+       # 전멸 후 부활로 HP가 올라오는 경우 제외
+       pokecenter_heal_hp: 0.005
+-      step_penalty: -0.00002 #-0.0001
++      step_penalty: -0.000015 #-0.0001
+       repeat_npc_penalty: -0.05
+       invalid_interaction: -0.002
+       start_menu_penalty: -0.022
+       stuck_penalty: -0.004
+-      wild_encounter_penalty: -0.4
++      wild_encounter_penalty: -0.35
+ 
+ # Policies to use for training.
+ # Each policy is keyed by a name for the commandline.
+diff --git a/pokemonred_puffer/__pycache__/cleanrl_puffer.cpython-310.pyc b/pokemonred_puffer/__pycache__/cleanrl_puffer.cpython-310.pyc
+index aa52873..d7fb4d9 100644
+Binary files a/pokemonred_puffer/__pycache__/cleanrl_puffer.cpython-310.pyc and b/pokemonred_puffer/__pycache__/cleanrl_puffer.cpython-310.pyc differ
+diff --git a/pokemonred_puffer/__pycache__/environment.cpython-310.pyc b/pokemonred_puffer/__pycache__/environment.cpython-310.pyc
+index ba1e01f..7a991a0 100644
+Binary files a/pokemonred_puffer/__pycache__/environment.cpython-310.pyc and b/pokemonred_puffer/__pycache__/environment.cpython-310.pyc differ
+diff --git a/pokemonred_puffer/__pycache__/eval.cpython-310.pyc b/pokemonred_puffer/__pycache__/eval.cpython-310.pyc
+index 1b06de5..c8cee13 100644
+Binary files a/pokemonred_puffer/__pycache__/eval.cpython-310.pyc and b/pokemonred_puffer/__pycache__/eval.cpython-310.pyc differ
+diff --git a/pokemonred_puffer/__pycache__/global_map.cpython-310.pyc b/pokemonred_puffer/__pycache__/global_map.cpython-310.pyc
+index 3fed4de..3d09899 100644
+Binary files a/pokemonred_puffer/__pycache__/global_map.cpython-310.pyc and b/pokemonred_puffer/__pycache__/global_map.cpython-310.pyc differ
+diff --git a/pokemonred_puffer/__pycache__/train.cpython-310.pyc b/pokemonred_puffer/__pycache__/train.cpython-310.pyc
+index 28be1f0..215553e 100644
+Binary files a/pokemonred_puffer/__pycache__/train.cpython-310.pyc and b/pokemonred_puffer/__pycache__/train.cpython-310.pyc differ
+diff --git a/pokemonred_puffer/environment.py b/pokemonred_puffer/environment.py
+index fc3cfb7..59155c8 100755
+--- a/pokemonred_puffer/environment.py
++++ b/pokemonred_puffer/environment.py
+@@ -447,6 +447,7 @@ class RedGymEnv(Env):
+         self.cut_explore_map *= 0
+         self.stuck_tile_map *= 0
+         self.high_reward_tile_map *= 0
++        self.building_entry_tile_map *= 0
+         self.reset_mem()
+ 
+         self.update_pokedex()
+@@ -506,6 +507,7 @@ class RedGymEnv(Env):
+         # wandb Kanto overlay: stuck 누적 / 고보상 타일 표시
+         self.stuck_tile_map = np.zeros(GLOBAL_MAP_SHAPE, dtype=np.float32)
+         self.high_reward_tile_map = np.zeros(GLOBAL_MAP_SHAPE, dtype=np.float32)
++        self.building_entry_tile_map = np.zeros(GLOBAL_MAP_SHAPE, dtype=np.float32)
+         self.seen_map_ids = np.zeros(256)
+         self.seen_npcs = {}
+         self.seen_warps = {}
+@@ -1785,7 +1787,7 @@ class RedGymEnv(Env):
+         self.a_press.add((x_pos, y_pos, map_n))
+ 
+     def build_pokemon_exploration_rgb(self) -> npt.NDArray[np.float32]:
+-        """wandb Kanto 오버레이: 연두=방문, 빨강=stuck 누적, 파랑=해당 타일에서 스텝 리워드>=1.5."""
++        """wandb Kanto 오버레이: 연두=방문, 빨강=stuck 누적, 파랑=고보상, 보라=건물 진입."""
+         h, w = GLOBAL_MAP_SHAPE
+         rgb = np.zeros((h, w, 3), dtype=np.float32)
+         visit = self.explore_map > 0
+@@ -1804,6 +1806,8 @@ class RedGymEnv(Env):
+ 
+         blue = np.array([0.2, 0.55, 1.0], dtype=np.float32)
+         rgb[self.high_reward_tile_map > 0] = blue
++        purple = np.array([0.72, 0.28, 0.9], dtype=np.float32)
++        rgb[self.building_entry_tile_map > 0] = purple
+         return rgb
+ 
+     def get_explore_map(self):
+diff --git a/pokemonred_puffer/eval.py b/pokemonred_puffer/eval.py
+index f78d24a..f643ea3 100755
+--- a/pokemonred_puffer/eval.py
++++ b/pokemonred_puffer/eval.py
+@@ -8,7 +8,9 @@ from pokemonred_puffer.global_map import PAD
+ 
+ 
+ KANTO_MAP_PATH = os.path.join(os.path.dirname(__file__), "kanto_map_dsv.png")
+-BACKGROUND = np.array(cv2.imread(KANTO_MAP_PATH))
++# cv2.imread()는 BGR로 로드되지만 downstream(wandb.Image, mediapy, matplotlib)은 RGB를 기대함.
++# 한 번만 변환해 두어 채널 스왑으로 인한 색 반전(빨간 지붕이 파랗게 보이는 등)을 방지한다.
++BACKGROUND = cv2.cvtColor(cv2.imread(KANTO_MAP_PATH), cv2.COLOR_BGR2RGB)
+ BACKGROUND = np.pad(BACKGROUND, ((PAD * 16, PAD * 16), (PAD * 16, PAD * 16), (0, 0)))
+ 
+ 
+@@ -24,12 +26,16 @@ def make_pokemon_red_overlay(counts: np.ndarray):
+ 
+ 
+ def _make_pokemon_red_overlay_rgb(counts: np.ndarray):
+-    # Max over envs: mean would dim colors when envs explore different routes (e.g. num_envs>1).
++    # 각 env 맵은 이미 카테고리별 색(방문=연두, stuck=빨강, 고보상=파랑, 건물=보라)으로
++    # 칠해져 있다. 산술 평균을 쓰면 "1개 env만 방문한 타일"이 0으로 희석돼 검게 뭉개지고
++    # 0 초과 마스크에는 걸려 배경을 덮어 얼룩처럼 보인다. 채널별 max(= 하이라이트 합집합)로
++    # 바꾸면 소수 env만 방문한 타일도 원색이 유지된다.
+     rgb = np.max(counts, axis=0).astype(np.float32)
+     rgb = np.clip(rgb, 0.0, 1.0)
+     overlay = (255.0 * rgb).astype(np.uint8)
++    # 색이 극히 작은 잔여 노이즈까지 오버레이되지 않도록 채널 최대값 기준으로 살짝 컷오프.
+     nonzero = np.ascontiguousarray(
+-        np.where(np.sum(rgb, axis=-1) > 1e-4, 1.0, 0.0).astype(np.float32)
++        np.where(np.max(rgb, axis=-1) > 1e-2, 1.0, 0.0).astype(np.float32)
+     )
+ 
+     kernel = np.ascontiguousarray(np.ones((16, 16), dtype=np.uint8))
+@@ -43,9 +49,8 @@ def _make_pokemon_red_overlay_rgb(counts: np.ndarray):
+     mask = np.kron(nonzero, kernel).astype(np.uint8)
+     mask = np.stack((mask, mask, mask), axis=-1) != 0
+ 
+-    # BACKGROUND is BGR (cv2); blend in RGB so red/blue match build_pokemon_exploration_rgb.
+-    background_rgb = cv2.cvtColor(BACKGROUND, cv2.COLOR_BGR2RGB)
+-    render = background_rgb.copy().astype(np.int32)
++    # BACKGROUND는 로드 시 이미 RGB로 변환되어 있어 추가 변환이 필요 없다.
++    render = BACKGROUND.copy().astype(np.int32)
+     render_shape = render.shape
+     render = render.ravel()
+     render[mask.ravel()] = 0.2 * render[mask.ravel()] + 0.8 * overlay.ravel()[mask.ravel()]
+diff --git a/pokemonred_puffer/rewards/__pycache__/baseline.cpython-310.pyc b/pokemonred_puffer/rewards/__pycache__/baseline.cpython-310.pyc
+index 41f1002..4dace5d 100644
+Binary files a/pokemonred_puffer/rewards/__pycache__/baseline.cpython-310.pyc and b/pokemonred_puffer/rewards/__pycache__/baseline.cpython-310.pyc differ
+diff --git a/pokemonred_puffer/rewards/baseline.py b/pokemonred_puffer/rewards/baseline.py
+index 69c1920..b58a6b7 100755
+--- a/pokemonred_puffer/rewards/baseline.py
++++ b/pokemonred_puffer/rewards/baseline.py
+@@ -223,6 +223,14 @@ class ExplorationInteractionRewardEnv(BaselineRewardEnv):
+         else:
+             self._register_new_room(map_id)
+ 
++    def _mark_building_entry_tile(self, map_id: int) -> None:
++        """현재 위치를 건물 진입 타일(보라색 오버레이)로 기록."""
++        x_pos, y_pos, cur_map_id = self.get_game_coords()
++        if int(cur_map_id) != int(map_id):
++            return
++        gy, gx = local_to_global(y_pos, x_pos, int(map_id))
++        self.building_entry_tile_map[gy, gx] = 1.0
++
+     def _apply_map_change_structure_reward(
+         self,
+         prev_map_id: int,
+@@ -252,6 +260,7 @@ class ExplorationInteractionRewardEnv(BaselineRewardEnv):
+             cur_kind = "field"
+ 
+         if self._is_pokecenter_map(map_id):
++            self._mark_building_entry_tile(map_id)
+             self._try_register_structure_visit(map_id, as_building=True)
+             return
+ 
+@@ -262,11 +271,14 @@ class ExplorationInteractionRewardEnv(BaselineRewardEnv):
+             as_building = prev_kind in ("field", "connector")
+             if prev_kind == "interior":
+                 as_building = False
++            if as_building:
++                self._mark_building_entry_tile(map_id)
+             self._try_register_structure_visit(map_id, as_building=as_building)
+             return
+ 
+         # cur_kind == "connector" (숲·게이트 등 다른 맵으로 이동)
+         if prev_kind == "field":
++            self._mark_building_entry_tile(map_id)
+             self._try_register_structure_visit(map_id, as_building=True)
+         elif prev_kind == "connector":
+             self._try_register_structure_visit(map_id, as_building=False)
+diff --git a/pokemonred_puffer/visualizations/coordinates_replay.py b/pokemonred_puffer/visualizations/coordinates_replay.py
+index 3906ae4..bd95784 100755
+--- a/pokemonred_puffer/visualizations/coordinates_replay.py
++++ b/pokemonred_puffer/visualizations/coordinates_replay.py
+@@ -11,7 +11,8 @@ from pokemonred_puffer.eval import BACKGROUND
+ from pokemonred_puffer.global_map import local_to_global
+ 
+ PLAYER_PATH = os.path.join(os.path.dirname(__file__), "player.png")
+-PLAYER = np.array(cv2.imread(PLAYER_PATH, cv2.IMREAD_COLOR))
++# BACKGROUND와 동일하게 RGB로 맞춰야 mediapy로 내보낸 영상에서 색 반전이 일어나지 않는다.
++PLAYER = cv2.cvtColor(cv2.imread(PLAYER_PATH, cv2.IMREAD_COLOR), cv2.COLOR_BGR2RGB)
+ 
+ 
+ def main():
+diff --git a/pokemonred_puffer/wrappers/__pycache__/exploration.cpython-310.pyc b/pokemonred_puffer/wrappers/__pycache__/exploration.cpython-310.pyc
+index 73eea6d..e6b71ab 100644
+Binary files a/pokemonred_puffer/wrappers/__pycache__/exploration.cpython-310.pyc and b/pokemonred_puffer/wrappers/__pycache__/exploration.cpython-310.pyc differ
+diff --git a/pokemonred_puffer/wrappers/exploration.py b/pokemonred_puffer/wrappers/exploration.py
+index 42b752e..a949eee 100755
+--- a/pokemonred_puffer/wrappers/exploration.py
++++ b/pokemonred_puffer/wrappers/exploration.py
+@@ -84,6 +84,7 @@ class DecayWrapper(gym.Wrapper):
+         )
+         self.env.unwrapped.stuck_tile_map *= self.step_forgetting_factor["explore"]
+         self.env.unwrapped.high_reward_tile_map *= self.step_forgetting_factor["explore"]
++        self.env.unwrapped.building_entry_tile_map *= self.step_forgetting_factor["explore"]
+         self.env.unwrapped.seen_hidden_objs.update(
+             (k, max(0.15, v * (self.step_forgetting_factor["hidden_objs"])))
+             for k, v in self.env.unwrapped.seen_hidden_objs.items()
+@@ -129,6 +130,7 @@ class MaxLengthWrapper(gym.Wrapper):
+             self.env.unwrapped.reward_explore_map[gy, gx] = 0
+             self.env.unwrapped.stuck_tile_map[gy, gx] = 0
+             self.env.unwrapped.high_reward_tile_map[gy, gx] = 0
++            self.env.unwrapped.building_entry_tile_map[gy, gx] = 0
+         return step
+ 
+ 
+@@ -148,6 +150,7 @@ class OnResetExplorationWrapper(gym.Wrapper):
+                 self.env.unwrapped.cut_explore_map *= 0
+                 self.env.unwrapped.stuck_tile_map *= 0
+                 self.env.unwrapped.high_reward_tile_map *= 0
++                self.env.unwrapped.building_entry_tile_map *= 0
+                 self.env.unwrapped.cut_tiles.clear()
+                 self.env.unwrapped.seen_coords.clear()
+                 self.env.unwrapped.seen_map_ids *= 0
+diff --git a/runs/pokemon-red-004/trainer_state.pt b/runs/pokemon-red-004/trainer_state.pt
+index 9423328..dda386d 100644
+Binary files a/runs/pokemon-red-004/trainer_state.pt and b/runs/pokemon-red-004/trainer_state.pt differ
+diff --git a/wandb/debug-internal.log b/wandb/debug-internal.log
+index 4a4b1e2..d118e97 120000
+--- a/wandb/debug-internal.log
++++ b/wandb/debug-internal.log
+@@ -1 +1 @@
+-run-20260418_155547-7g4a12co/logs/debug-internal.log
+\ No newline at end of file
++run-20260420_164644-1g8yp768/logs/debug-internal.log
+\ No newline at end of file
+diff --git a/wandb/debug.log b/wandb/debug.log
+index aa79240..7a5f170 120000
+--- a/wandb/debug.log
++++ b/wandb/debug.log
+@@ -1 +1 @@
+-run-20260418_155547-7g4a12co/logs/debug.log
+\ No newline at end of file
++run-20260420_164644-1g8yp768/logs/debug.log
+\ No newline at end of file
+diff --git a/wandb/latest-run b/wandb/latest-run
+index 9bf4cd8..f7bbbca 120000
+--- a/wandb/latest-run
++++ b/wandb/latest-run
+@@ -1 +1 @@
+-run-20260418_155547-7g4a12co
+\ No newline at end of file
++run-20260420_164644-1g8yp768
+\ No newline at end of file
+diff --git a/wandb/wandb-resume.json b/wandb/wandb-resume.json
+index 3a2917f..1feb646 100644
+--- a/wandb/wandb-resume.json
++++ b/wandb/wandb-resume.json
+@@ -1 +1 @@
+-{"run_id": "7g4a12co"}
+\ No newline at end of file
++{"run_id": "1g8yp768"}
+\ No newline at end of file

@@ -223,6 +223,14 @@ class ExplorationInteractionRewardEnv(BaselineRewardEnv):
         else:
             self._register_new_room(map_id)
 
+    def _mark_building_entry_tile(self, map_id: int) -> None:
+        """현재 위치를 건물 진입 타일(보라색 오버레이)로 기록."""
+        x_pos, y_pos, cur_map_id = self.get_game_coords()
+        if int(cur_map_id) != int(map_id):
+            return
+        gy, gx = local_to_global(y_pos, x_pos, int(map_id))
+        self.building_entry_tile_map[gy, gx] = 1.0
+
     def _apply_map_change_structure_reward(
         self,
         prev_map_id: int,
@@ -252,6 +260,7 @@ class ExplorationInteractionRewardEnv(BaselineRewardEnv):
             cur_kind = "field"
 
         if self._is_pokecenter_map(map_id):
+            self._mark_building_entry_tile(map_id)
             self._try_register_structure_visit(map_id, as_building=True)
             return
 
@@ -262,11 +271,14 @@ class ExplorationInteractionRewardEnv(BaselineRewardEnv):
             as_building = prev_kind in ("field", "connector")
             if prev_kind == "interior":
                 as_building = False
+            if as_building:
+                self._mark_building_entry_tile(map_id)
             self._try_register_structure_visit(map_id, as_building=as_building)
             return
 
         # cur_kind == "connector" (숲·게이트 등 다른 맵으로 이동)
         if prev_kind == "field":
+            self._mark_building_entry_tile(map_id)
             self._try_register_structure_visit(map_id, as_building=True)
         elif prev_kind == "connector":
             self._try_register_structure_visit(map_id, as_building=False)
@@ -363,9 +375,8 @@ class ExplorationInteractionRewardEnv(BaselineRewardEnv):
             and not self._textbox_active()
             and self._same_coord_streak > 10
         ):
+            # stuck 페널티는 카운트로만 처리한다(빨간색 타일맵은 야생 조우 시각화로 재배정).
             self.stuck_penalty_count += 1
-            _gy, _gx = local_to_global(y_pos, x_pos, map_id)
-            self.stuck_tile_map[_gy, _gx] = min(self.stuck_tile_map[_gy, _gx] + 1.0, 1e4)
 
     def run_action_on_emulator(self, action):
         self._seed_reward_state_if_needed()
@@ -418,6 +429,15 @@ class ExplorationInteractionRewardEnv(BaselineRewardEnv):
         # 야생 조우: 필드(0) → 야생(1)만. 트레이너는 2라서 제외.
         if prev_is_in_battle == 0 and post_battle == 1:
             self.wild_encounter_count += 1
+            # 조우 발생 좌표를 Kanto 오버레이에 빨간 강도로 누적 기록
+            enc_x, enc_y, enc_map = self.get_game_coords()
+            _gy, _gx = local_to_global(enc_y, enc_x, enc_map)
+            if 0 <= _gy < self.wild_encounter_tile_map.shape[0] and (
+                0 <= _gx < self.wild_encounter_tile_map.shape[1]
+            ):
+                self.wild_encounter_tile_map[_gy, _gx] = min(
+                    self.wild_encounter_tile_map[_gy, _gx] + 1.0, 1e4
+                )
 
         # Pokémon Center healing reward:
         # - pokecenter_heal is set by AnimateHealingMachine hook
