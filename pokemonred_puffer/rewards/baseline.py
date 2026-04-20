@@ -223,6 +223,14 @@ class ExplorationInteractionRewardEnv(BaselineRewardEnv):
         else:
             self._register_new_room(map_id)
 
+    def _mark_building_entry_tile(self, map_id: int) -> None:
+        """현재 위치를 건물 진입 타일(보라색 오버레이)로 기록."""
+        x_pos, y_pos, cur_map_id = self.get_game_coords()
+        if int(cur_map_id) != int(map_id):
+            return
+        gy, gx = local_to_global(y_pos, x_pos, int(map_id))
+        self.building_entry_tile_map[gy, gx] = 1.0
+
     def _apply_map_change_structure_reward(
         self,
         prev_map_id: int,
@@ -252,6 +260,7 @@ class ExplorationInteractionRewardEnv(BaselineRewardEnv):
             cur_kind = "field"
 
         if self._is_pokecenter_map(map_id):
+            self._mark_building_entry_tile(map_id)
             self._try_register_structure_visit(map_id, as_building=True)
             return
 
@@ -262,11 +271,14 @@ class ExplorationInteractionRewardEnv(BaselineRewardEnv):
             as_building = prev_kind in ("field", "connector")
             if prev_kind == "interior":
                 as_building = False
+            if as_building:
+                self._mark_building_entry_tile(map_id)
             self._try_register_structure_visit(map_id, as_building=as_building)
             return
 
         # cur_kind == "connector" (숲·게이트 등 다른 맵으로 이동)
         if prev_kind == "field":
+            self._mark_building_entry_tile(map_id)
             self._try_register_structure_visit(map_id, as_building=True)
         elif prev_kind == "connector":
             self._try_register_structure_visit(map_id, as_building=False)

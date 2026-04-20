@@ -24,8 +24,8 @@ def make_pokemon_red_overlay(counts: np.ndarray):
 
 
 def _make_pokemon_red_overlay_rgb(counts: np.ndarray):
-    # Max over envs: mean would dim colors when envs explore different routes (e.g. num_envs>1).
-    rgb = np.max(counts, axis=0).astype(np.float32)
+    # Mean over envs/frames to highlight average exploration tendency.
+    rgb = np.mean(counts, axis=0).astype(np.float32)
     rgb = np.clip(rgb, 0.0, 1.0)
     overlay = (255.0 * rgb).astype(np.uint8)
     nonzero = np.ascontiguousarray(

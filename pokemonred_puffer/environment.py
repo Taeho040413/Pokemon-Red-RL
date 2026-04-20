@@ -447,6 +447,7 @@ class RedGymEnv(Env):
         self.cut_explore_map *= 0
         self.stuck_tile_map *= 0
         self.high_reward_tile_map *= 0
+        self.building_entry_tile_map *= 0
         self.reset_mem()
 
         self.update_pokedex()
@@ -499,13 +500,14 @@ class RedGymEnv(Env):
     def init_mem(self):
         # Maybe I should preallocate a giant matrix for all map ids
         # All map ids have the same size, right?
-        self.seen_coords: dict[int, dict[tuple[int, int, int], int]] = {}
+        self.seen_coords: dict[int, dict[tuple[int, int, int], float]] = {}
         self.explore_map = np.zeros(GLOBAL_MAP_SHAPE, dtype=np.float32)
         self.reward_explore_map = np.zeros(GLOBAL_MAP_SHAPE, dtype=np.float32)
         self.cut_explore_map = np.zeros(GLOBAL_MAP_SHAPE, dtype=np.float32)
         # wandb Kanto overlay: stuck 누적 / 고보상 타일 표시
         self.stuck_tile_map = np.zeros(GLOBAL_MAP_SHAPE, dtype=np.float32)
         self.high_reward_tile_map = np.zeros(GLOBAL_MAP_SHAPE, dtype=np.float32)
+        self.building_entry_tile_map = np.zeros(GLOBAL_MAP_SHAPE, dtype=np.float32)
         self.seen_map_ids = np.zeros(256)
         self.seen_npcs = {}
         self.seen_warps = {}
@@ -1785,7 +1787,7 @@ class RedGymEnv(Env):
         self.a_press.add((x_pos, y_pos, map_n))
 
     def build_pokemon_exploration_rgb(self) -> npt.NDArray[np.float32]:
-        """wandb Kanto 오버레이: 연두=방문, 빨강=stuck 누적, 파랑=해당 타일에서 스텝 리워드>=1.5."""
+        """wandb Kanto 오버레이: 연두=방문, 빨강=stuck 누적, 파랑=고보상, 보라=건물 진입."""
         h, w = GLOBAL_MAP_SHAPE
         rgb = np.zeros((h, w, 3), dtype=np.float32)
         visit = self.explore_map > 0
@@ -1804,6 +1806,8 @@ class RedGymEnv(Env):
 
         blue = np.array([0.2, 0.55, 1.0], dtype=np.float32)
         rgb[self.high_reward_tile_map > 0] = blue
+        purple = np.array([0.72, 0.28, 0.9], dtype=np.float32)
+        rgb[self.building_entry_tile_map > 0] = purple
         return rgb
 
     def get_explore_map(self):
