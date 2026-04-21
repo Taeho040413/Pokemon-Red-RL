@@ -311,8 +311,8 @@ rewards:
       new_room: 4.0
       new_npc_textbox: 0.6
       # 트레이너전 승리 1회당 (야생 승리는 미포함)
-      trainer_battle_win: 0.2
-      # 야생전에서 아군 포켓몬 기절(HP>0→0) 1마리당; 트레이너전 기절은 미적용
+      trainer_battle_win: 0.15
+      # 트레이너전 기절은 미적용
       death: -0.5
       # 포켓몬 센터 방문 및 리스폰 포인트 등록 유도
       pokecenter_first_entry: 4.0
