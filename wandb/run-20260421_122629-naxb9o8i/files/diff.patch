@@ -1,0 +1,149 @@
+diff --git a/config.yaml b/config.yaml
+index a51acb3..b5a052a 100755
+--- a/config.yaml
++++ b/config.yaml
+@@ -26,7 +26,7 @@ env:
+   # How many ticks each environment step should take.
+   action_freq: 12
+   # Maximum number of steps per mini-episode.
+-  max_steps: 30000
++  max_steps: 40000
+   # If true, save videos.
+   save_video: False
+   # If true, save sped up videos.
+@@ -94,7 +94,7 @@ env:
+   # The max possible value on the exploration map.
+   exploration_max: 1.0
+   # The amount to scale max steps by. Will be multiplied by the number of required items and events.
+-  max_steps_scaling: 0
++  max_steps_scaling: 0.3
+   # The scaling for visiting important map IDs.
+   map_id_scalefactor: 9.539340019226074
+   # Pewter(Brock) 클리어 시 에피소드 종료 (wObtainedBadges bit 0).
+@@ -306,24 +306,24 @@ rewards:
+       gym_core_npc: 1.3
+       npc_first_talk: 3.0
+       object_first_interaction: 0.6
+-      new_tile: 0.016
++      new_tile: 0.0165
+       new_building: 4.0
+       new_room: 4.0
+       new_npc_textbox: 0.6
+       # 트레이너전 승리 1회당 (야생 승리는 미포함)
+-      trainer_battle_win: 0.5
++      trainer_battle_win: 1.0
+       # 야생전에서 아군 포켓몬 기절(HP>0→0) 1마리당; 트레이너전 기절은 미적용
+       death: -0.5
+       # 포켓몬 센터 방문 및 리스폰 포인트 등록 유도
+       pokecenter_first_entry: 4.0
+       # 전멸 후 부활로 HP가 올라오는 경우 제외
+       pokecenter_heal_hp: 0.005
+-      step_penalty: -0.000015 #-0.0001
++      step_penalty: -0.00004 #-0.0001
+       repeat_npc_penalty: -0.05
+       invalid_interaction: -0.002
+       start_menu_penalty: -0.022
+       stuck_penalty: -0.004
+-      wild_encounter_penalty: -0.35
++      wild_encounter_penalty: -0.7
+ 
+ # Policies to use for training.
+ # Each policy is keyed by a name for the commandline.
+diff --git a/pokemonred_puffer/__pycache__/environment.cpython-310.pyc b/pokemonred_puffer/__pycache__/environment.cpython-310.pyc
+index 7a991a0..df37841 100644
+Binary files a/pokemonred_puffer/__pycache__/environment.cpython-310.pyc and b/pokemonred_puffer/__pycache__/environment.cpython-310.pyc differ
+diff --git a/pokemonred_puffer/environment.py b/pokemonred_puffer/environment.py
+index ecc92b9..3eec201 100755
+--- a/pokemonred_puffer/environment.py
++++ b/pokemonred_puffer/environment.py
+@@ -1745,6 +1745,29 @@ class RedGymEnv(Env):
+             * self.max_steps_scaling,
+         )
+ 
++    def _read_player_standing_tiles(self) -> np.ndarray:
++        """플레이어가 서 있는 2x2 블록의 rendered tile ID 4개.
++
++        cut_if_next / surf_if_attempt 에서 사용하는 관례와 동일하게 wTileMap(20x18) 중
++        (y=8, x=8) 기준 2x2 영역이 현재 플레이어가 깔고 있는 타일들이다.
++        """
++        _, w_tile_map = self.pyboy.symbol_lookup("wTileMap")
++        raw = np.frombuffer(
++            bytes(self.pyboy.memory[w_tile_map : w_tile_map + 20 * 18]), dtype=np.uint8
++        )
++        return raw.reshape(18, 20)[8:10, 8:10]
++
++    def is_on_wild_encounter_tile(self) -> bool:
++        """현재 좌표가 야생 포켓몬이 출현할 수 있는 풀숲 타일인지 판정.
++
++        pokered LoadTilesetHeader는 각 타일셋의 grass tile ID를 WRAM `wGrassTile`에 적재한다.
++        풀숲이 없는 타일셋(동굴·실내 등)에서는 0xFF가 들어 있어 항상 False가 반환된다.
++        """
++        grass_tile = int(self.read_m("wGrassTile"))
++        if grass_tile == 0xFF:
++            return False
++        return bool(np.any(self._read_player_standing_tiles() == grass_tile))
++
+     def update_seen_coords(self):
+         inc = 0.5 if (self.read_m("wMovementFlags") & 0b1000_0000) else self.exploration_inc
+ 
+diff --git a/pokemonred_puffer/rewards/__pycache__/baseline.cpython-310.pyc b/pokemonred_puffer/rewards/__pycache__/baseline.cpython-310.pyc
+index 4dace5d..082dcf3 100644
+Binary files a/pokemonred_puffer/rewards/__pycache__/baseline.cpython-310.pyc and b/pokemonred_puffer/rewards/__pycache__/baseline.cpython-310.pyc differ
+diff --git a/pokemonred_puffer/rewards/baseline.py b/pokemonred_puffer/rewards/baseline.py
+index 30e7bf9..6443738 100755
+--- a/pokemonred_puffer/rewards/baseline.py
++++ b/pokemonred_puffer/rewards/baseline.py
+@@ -361,7 +361,10 @@ class ExplorationInteractionRewardEnv(BaselineRewardEnv):
+ 
+         if cur_coord not in self._seen_unique_coords:
+             self._seen_unique_coords.add(cur_coord)
+-            self.new_tile_count += 1
++            # 풀숲(야생 포켓몬 출현) 타일은 new_tile 보상에서 제외한다.
++            # 탐험 셰이핑 보상으로 인코더를 유인해 조우→페널티 루프에 빠지는 것을 방지.
++            if not self.is_on_wild_encounter_tile():
++                self.new_tile_count += 1
+ 
+         # Penalize prolonged no-movement loops only outside battle/textbox.
+         if cur_coord == self._last_coord_for_stuck:
+diff --git a/pokemonred_puffer/wrappers/__pycache__/exploration.cpython-310.pyc b/pokemonred_puffer/wrappers/__pycache__/exploration.cpython-310.pyc
+index e6b71ab..e4cae95 100644
+Binary files a/pokemonred_puffer/wrappers/__pycache__/exploration.cpython-310.pyc and b/pokemonred_puffer/wrappers/__pycache__/exploration.cpython-310.pyc differ
+diff --git a/runs/pokemon-red-004/trainer_state.pt b/runs/pokemon-red-004/trainer_state.pt
+index 238765c..3db4ef5 100644
+Binary files a/runs/pokemon-red-004/trainer_state.pt and b/runs/pokemon-red-004/trainer_state.pt differ
+diff --git a/wandb/debug-internal.log b/wandb/debug-internal.log
+index d118e97..eafc2c2 120000
+--- a/wandb/debug-internal.log
++++ b/wandb/debug-internal.log
+@@ -1 +1 @@
+-run-20260420_164644-1g8yp768/logs/debug-internal.log
+\ No newline at end of file
++run-20260421_122629-naxb9o8i/logs/debug-internal.log
+\ No newline at end of file
+diff --git a/wandb/debug.log b/wandb/debug.log
+index 7a5f170..29f141c 120000
+--- a/wandb/debug.log
++++ b/wandb/debug.log
+@@ -1 +1 @@
+-run-20260420_164644-1g8yp768/logs/debug.log
+\ No newline at end of file
++run-20260421_122629-naxb9o8i/logs/debug.log
+\ No newline at end of file
+diff --git a/wandb/latest-run b/wandb/latest-run
+index f7bbbca..a5cf1ec 120000
+--- a/wandb/latest-run
++++ b/wandb/latest-run
+@@ -1 +1 @@
+-run-20260420_164644-1g8yp768
+\ No newline at end of file
++run-20260421_122629-naxb9o8i
+\ No newline at end of file
+diff --git a/wandb/wandb-resume.json b/wandb/wandb-resume.json
+index 1feb646..c614ad5 100644
+--- a/wandb/wandb-resume.json
++++ b/wandb/wandb-resume.json
+@@ -1 +1 @@
+-{"run_id": "1g8yp768"}
+\ No newline at end of file
++{"run_id": "naxb9o8i"}
+\ No newline at end of file

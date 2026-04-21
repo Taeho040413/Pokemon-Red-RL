@@ -1745,6 +1745,29 @@ class RedGymEnv(Env):
             * self.max_steps_scaling,
         )
 
+    def _read_player_standing_tiles(self) -> np.ndarray:
+        """플레이어가 서 있는 2x2 블록의 rendered tile ID 4개.
+
+        cut_if_next / surf_if_attempt 에서 사용하는 관례와 동일하게 wTileMap(20x18) 중
+        (y=8, x=8) 기준 2x2 영역이 현재 플레이어가 깔고 있는 타일들이다.
+        """
+        _, w_tile_map = self.pyboy.symbol_lookup("wTileMap")
+        raw = np.frombuffer(
+            bytes(self.pyboy.memory[w_tile_map : w_tile_map + 20 * 18]), dtype=np.uint8
+        )
+        return raw.reshape(18, 20)[8:10, 8:10]
+
+    def is_on_wild_encounter_tile(self) -> bool:
+        """현재 좌표가 야생 포켓몬이 출현할 수 있는 풀숲 타일인지 판정.
+
+        pokered LoadTilesetHeader는 각 타일셋의 grass tile ID를 WRAM `wGrassTile`에 적재한다.
+        풀숲이 없는 타일셋(동굴·실내 등)에서는 0xFF가 들어 있어 항상 False가 반환된다.
+        """
+        grass_tile = int(self.read_m("wGrassTile"))
+        if grass_tile == 0xFF:
+            return False
+        return bool(np.any(self._read_player_standing_tiles() == grass_tile))
+
     def update_seen_coords(self):
         inc = 0.5 if (self.read_m("wMovementFlags") & 0b1000_0000) else self.exploration_inc
 

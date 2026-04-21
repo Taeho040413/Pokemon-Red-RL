@@ -361,7 +361,10 @@ class ExplorationInteractionRewardEnv(BaselineRewardEnv):
 
         if cur_coord not in self._seen_unique_coords:
             self._seen_unique_coords.add(cur_coord)
-            self.new_tile_count += 1
+            # 풀숲(야생 포켓몬 출현) 타일은 new_tile 보상에서 제외한다.
+            # 탐험 셰이핑 보상으로 인코더를 유인해 조우→페널티 루프에 빠지는 것을 방지.
+            if not self.is_on_wild_encounter_tile():
+                self.new_tile_count += 1
 
         # Penalize prolonged no-movement loops only outside battle/textbox.
         if cur_coord == self._last_coord_for_stuck:

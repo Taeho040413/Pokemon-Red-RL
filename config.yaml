@@ -26,7 +26,7 @@ env:
   # How many ticks each environment step should take.
   action_freq: 12
   # Maximum number of steps per mini-episode.
-  max_steps: 30000
+  max_steps: 40000
   # If true, save videos.
   save_video: False
   # If true, save sped up videos.
@@ -94,7 +94,7 @@ env:
   # The max possible value on the exploration map.
   exploration_max: 1.0
   # The amount to scale max steps by. Will be multiplied by the number of required items and events.
-  max_steps_scaling: 0
+  max_steps_scaling: 0.3
   # The scaling for visiting important map IDs.
   map_id_scalefactor: 9.539340019226074
   # Pewter(Brock) 클리어 시 에피소드 종료 (wObtainedBadges bit 0).
@@ -303,27 +303,27 @@ rewards:
     reward:
       event: 5.0 #1.0
       item: 2.5 #0.75
-      gym_core_npc: 1.3
+      gym_core_npc: 1.5
       npc_first_talk: 3.0
       object_first_interaction: 0.6
-      new_tile: 0.016
+      new_tile: 0.0165
       new_building: 4.0
       new_room: 4.0
       new_npc_textbox: 0.6
       # 트레이너전 승리 1회당 (야생 승리는 미포함)
-      trainer_battle_win: 0.5
+      trainer_battle_win: 0.2
       # 야생전에서 아군 포켓몬 기절(HP>0→0) 1마리당; 트레이너전 기절은 미적용
       death: -0.5
       # 포켓몬 센터 방문 및 리스폰 포인트 등록 유도
       pokecenter_first_entry: 4.0
       # 전멸 후 부활로 HP가 올라오는 경우 제외
       pokecenter_heal_hp: 0.005
-      step_penalty: -0.000015 #-0.0001
-      repeat_npc_penalty: -0.05
+      step_penalty: -0.00004 #-0.0001
+      repeat_npc_penalty: -0.07
       invalid_interaction: -0.002
       start_menu_penalty: -0.022
       stuck_penalty: -0.004
-      wild_encounter_penalty: -0.35
+      wild_encounter_penalty: -1.2
 
 # Policies to use for training.
 # Each policy is keyed by a name for the commandline.
