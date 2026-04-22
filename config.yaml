@@ -16,7 +16,7 @@ env:
   # python -m pokemonred_puffer.save_town_state --export-sav "Cerulean City.sav" --export-state-out pyboy_states/CeruleanCity.state
   state_dir: pyboy_states
   # init_state: PewterCity
-  init_state: CeruleanCity
+  init_state: BrownCity
   init_state_path: ~
 
   # If true, run without rendering every step (no SDL window).
@@ -306,9 +306,9 @@ rewards:
       gym_core_npc: 1.5
       npc_first_talk: 3.0
       object_first_interaction: 0.6
-      new_tile: 0.0165
+      new_tile: 0.014
       new_building: 4.0
-      new_room: 4.0
+      new_room: 2.0
       new_npc_textbox: 0.6
       # 트레이너전 승리 1회당 (야생 승리는 미포함)
       trainer_battle_win: 0.15

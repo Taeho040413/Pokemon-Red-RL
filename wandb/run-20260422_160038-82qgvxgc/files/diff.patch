@@ -1,0 +1,52 @@
+diff --git a/config.yaml b/config.yaml
+index 9998e58..1630235 100755
+--- a/config.yaml
++++ b/config.yaml
+@@ -16,7 +16,7 @@ env:
+   # python -m pokemonred_puffer.save_town_state --export-sav "Cerulean City.sav" --export-state-out pyboy_states/CeruleanCity.state
+   state_dir: pyboy_states
+   # init_state: PewterCity
+-  init_state: CeruleanCity
++  init_state: BrownCity
+   init_state_path: ~
+ 
+   # If true, run without rendering every step (no SDL window).
+diff --git a/runs/pokemon-red-004/trainer_state.pt b/runs/pokemon-red-004/trainer_state.pt
+index a127261..2d25887 100644
+Binary files a/runs/pokemon-red-004/trainer_state.pt and b/runs/pokemon-red-004/trainer_state.pt differ
+diff --git a/wandb/debug-internal.log b/wandb/debug-internal.log
+index cb60766..ae2e4b0 120000
+--- a/wandb/debug-internal.log
++++ b/wandb/debug-internal.log
+@@ -1 +1 @@
+-run-20260421_141804-6gu879nw/logs/debug-internal.log
+\ No newline at end of file
++run-20260422_160038-82qgvxgc/logs/debug-internal.log
+\ No newline at end of file
+diff --git a/wandb/debug.log b/wandb/debug.log
+index b83b855..5258b31 120000
+--- a/wandb/debug.log
++++ b/wandb/debug.log
+@@ -1 +1 @@
+-run-20260421_141804-6gu879nw/logs/debug.log
+\ No newline at end of file
++run-20260422_160038-82qgvxgc/logs/debug.log
+\ No newline at end of file
+diff --git a/wandb/latest-run b/wandb/latest-run
+index 2fbd754..e460a9b 120000
+--- a/wandb/latest-run
++++ b/wandb/latest-run
+@@ -1 +1 @@
+-run-20260421_141804-6gu879nw
+\ No newline at end of file
++run-20260422_160038-82qgvxgc
+\ No newline at end of file
+diff --git a/wandb/wandb-resume.json b/wandb/wandb-resume.json
+index 6ad497d..31fc4be 100644
+--- a/wandb/wandb-resume.json
++++ b/wandb/wandb-resume.json
+@@ -1 +1 @@
+-{"run_id": "6gu879nw"}
+\ No newline at end of file
++{"run_id": "82qgvxgc"}
+\ No newline at end of file
