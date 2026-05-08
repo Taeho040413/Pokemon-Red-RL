@@ -8,6 +8,10 @@
 
 환경 → 정책 → 보상의 데이터 흐름을 한 화면에 모은 개요입니다. (**현재 레포 코드** 기준.)
 
+![Pokemon Red RL (PufferLib) 구조 개요](assets/pokemon_red_rl_structure_overview.png)
+
+*이미지 재생성: `python docs/scripts/render_structure_overview.py` (matplotlib, 시스템에 CJK 폰트 필요)*
+
 <table>
 <tr valign="top">
 <td width="33%">
