@@ -4,6 +4,129 @@
 
 ---
 
+## 0. Pokemon Red RL (PufferLib) — 구조 개요
+
+환경 → 정책 → 보상의 데이터 흐름을 한 화면에 모은 개요입니다. (**현재 레포 코드** 기준.)
+
+<table>
+<tr valign="top">
+<td width="33%">
+
+### 환경 — PyBoy / `RedGymEnv`
+
+**관측 (`Dict`)**
+
+- **시각·공간**
+  - `screen` — 화면 버퍼 (2비트 패킹 가능)
+  - `visited_mask` — 방문 오버레이
+  - `global_map` — *(선택)* `env.use_global_map=True`일 때만 공간에 추가
+- **플레이어·맵 상태**
+  - `direction`, `map_id`, `blackout_map_id`, `battle_type`
+- **인벤·파티**
+  - `bag_items` / `bag_quantity`
+  - 파티 6슬롯: `species`, `hp`, `maxHP`, `status`, `type1`, `type2`, `level`, `attack`, `defense`, `speed`, `special`, `moves`
+- **진행도**
+  - `events` — 이벤트 플래그 비트열 (정책에서 일부 인덱스만 사용)
+
+**보조 정보 (관측 아님 · `info` / 로그)**
+
+- 미사블 등 예: `game_corner_rocket`
+- 사파리: `info["stats"]["safari_zone"]` 등
+
+**출력**
+
+- **액션**: 이산 **7**개 (`↓←→↑`, `A`, `B`, `START`)
+
+</td>
+<td width="33%">
+
+### 정책 — `MultiConvolutionalPolicy` (+ RNN)
+
+학습 설정에서 `MultiConvolutionalRNN`(LSTM)이 정책을 감쌉니다 (`config.yaml` → `use_rnn`).
+
+**입력 처리**
+
+1. **CNN** (`screen` ∥ `visited_mask` 채널 결합) → 화면 특징 벡터
+2. **임베딩·표 처리**
+   - `map_id`, `blackout_map_id` → `nn.Embedding`
+   - 가방: 아이템 ID 임베딩 × 수량 스케일
+   - 파티: 종족·타입·기술 임베딩 + 스탯 정규화 → `party_network`
+   - `direction`, `battle_type` → one-hot
+   - `events` → 비트 언팩 후 `EVENTS_IDXS`만 사용
+3. *(선택)* `global_map` → 별도 CNN 분기 후 벡터 결합
+
+**은닉·헤드**
+
+- 전부 연결 → `encode_linear` → 은닉 **`z`**
+- **Value**: `value_fn` → **V(s)** (스칼라)
+- **Actor**: `actor` → **7 logits** (위 액션과 1:1)
+
+**비고**
+
+- 별도 **HM 서브헤드**(cut/surf 등 확률)는 **없음**. 필드 기술은 환경 옵션 `auto_teach_*` / `auto_use_*`로 에뮬레이터가 처리할 수 있음.
+
+</td>
+<td width="33%">
+
+### 보상 — `ExplorationInteractionRewardEnv`
+
+**부모**: `BaselineRewardEnv` → `RedGymEnv`
+
+**누적 딕셔너리**
+
+- `get_game_state_reward()`가 항목별 가중 합을 반환 (예: `event`, `new_tile`, `new_building`, `wild_encounter_penalty`, …).
+
+**스텝 보상**
+
+- `update_reward()`:  
+  **`step_reward = sum(새 딕셔너리) − sum(이전 누적)`**  
+  각 항목은 에피소드 동안 단조 증가하는 카운트 × `config` 계수.
+
+**셰이핑 요약**
+
+- **긍정**: 이벤트, 신규 타일·건물·방, NPC/오브젝트 최초 상호작용, 트레이너 승리, 포켓센터 등
+- **패널티**: 스텝, 정체(`stuck`), 야생 조우, 반복 NPC, 무효 A, 시작 메뉴, 야생전 기절 등
+
+**가중치**
+
+- `config.yaml` → `rewards.baseline.ExplorationInteractionRewardEnv.reward`
+
+**비고**
+
+- **Reward Machine**(상태 `rm_*`) 전이 가중은 **본 레포 보상 클래스에는 없음**.
+
+</td>
+</tr>
+</table>
+
+### 한 줄 흐름
+
+```mermaid
+flowchart LR
+  subgraph Env["환경\nPyBoy / RedGymEnv"]
+    O["관측 Dict\n(screen, visited_mask, …)"]
+    A["액션 ×7"]
+  end
+  subgraph Pol["정책\nMultiConvolutionalPolicy + RNN"]
+    E["CNN · 임베딩 · concat"]
+    Z["은닉 z"]
+    V["V(s)"]
+    Pi["π: 7 logits"]
+  end
+  subgraph Rew["보상\nExplorationInteractionRewardEnv"]
+    D["항목별 누적"]
+    S["스텝 보상 = Δ합"]
+  end
+  O --> E --> Z
+  Z --> V
+  Z --> Pi
+  Pi --> A
+  A --> Env
+  Env --> D --> S
+```
+
+---
+
 ## 1. 입출력 (I/O)
 
 ### 1.1 관측 (`observation`)
@@ -65,7 +188,7 @@ Gymnasium `Dict` 공간. 에이전트는 매 스텝 딕셔너리 관측을 받�
 
 **이번 스텝 보상 = (새로운 전체 합) − (직전 전체 합)**
 
-으로 계산됩니다. 따라서 각 항목은 “카운트 × 계수” 형태로 **에피소드 동안단조 증가(또는 감소)하는 누적량**에 가중치를 곱한 값입니다.
+으로 계산됩니다. 따라서 각 항목은 “카운트 × 계수” 형태로 **에피소드 동안 단조 증가(또는 감소)하는 누적량**에 가중치를 곱한 값입니다.
 
 ### 3.1 긍정적 셰이핑 (리워드 계수 > 0)
 
@@ -133,32 +256,7 @@ flowchart TD
 
 ---
 
-## 5. 전체 데이터 흐름 (시스템 구조도)
-
-```mermaid
-flowchart LR
-  subgraph Agent
-    PI[정책 네트워크]
-  end
-  subgraph Env["RedGymEnv / ExplorationInteractionRewardEnv"]
-    A[Discrete 액션 0-6]
-    E[PyBoy + pokered ROM]
-    O[관측 Dict 조립 _get_obs]
-    R[get_game_state_reward 누적 항목]
-    U[update_reward 증분]
-  end
-  PI -->|action| A
-  A --> E
-  E --> O
-  E --> R
-  R --> U
-  O -->|obs| PI
-  U -->|reward| PI
-```
-
----
-
-## 6. 설정 변경 시 주의
+## 5. 설정 변경 시 주의
 
 - `reward.*` 계수는 `config.yaml`의 `rewards.baseline.ExplorationInteractionRewardEnv.reward`에서 바뀝니다.
 - 관측 shape은 `reduce_res`, `two_bit`, `use_global_map`에 따라 달라지므로 정책 입력 차원과 일치시켜야 합니다.
